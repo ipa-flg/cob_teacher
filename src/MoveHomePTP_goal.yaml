@@ -1,0 +1,21 @@
+#Generated once for configuration of goals
+#Config config/MoveHomePTP_goal.yaml
+target_frame: 'gripper_link'
+goal_pose:
+  header:
+    seq: 0
+    stamp:
+      secs: 0
+      nsecs: 0
+    frame_id: 'base_link'
+  pose:
+    position:
+      x: 0.779
+      y: -0.154
+      z: 0.989
+    orientation:
+      x: -0.115
+      y: 0.015
+      z: 0.034
+      w: 0.993
+linVel: 0.0
