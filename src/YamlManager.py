@@ -52,7 +52,18 @@ class YamlManager():
 		return "Unknown"
 
 	def updateField(self, fieldname, data):
-		pass
+		# this is not done yet (only a test version)
+		self.data[fieldname]["pose"]["position"]["x"] = data.pose.position.x
+		self.data[fieldname]["pose"]["position"]["y"] = data.pose.position.y
+		self.data[fieldname]["pose"]["position"]["z"] = data.pose.position.z
+
+		self.data[fieldname]["pose"]["orientation"]["x"] = data.pose.orientation.x
+		self.data[fieldname]["pose"]["orientation"]["y"] = data.pose.orientation.y
+		self.data[fieldname]["pose"]["orientation"]["z"] = data.pose.orientation.z
+		self.data[fieldname]["pose"]["orientation"]["w"] = data.pose.orientation.w
+		
 
 	def writeFile(self):
-		pass
+		with open(self.filename, "w") as stream:
+			stream.write(yaml.dump(self.data, default_flow_style=False))
+			stream.close()

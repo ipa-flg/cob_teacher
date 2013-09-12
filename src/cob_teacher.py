@@ -19,7 +19,9 @@ class SimpleTeacher:
 			teacher = self.findTeacher(ym.getType(field))
 			if(teacher != None):
 				p = teacher().getData(field)
-				print p
+				#print p
+				ym.updateField(field, p)
+				ym.writeFile()
 
 	def findTeacher(self, fieldtype):
 		self.teachers = []
