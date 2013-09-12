@@ -5,6 +5,10 @@ class TeacherPlugin():
     def __init__(self):
         raise NotImplementedError( "Should have implemented this" )
 
+    # Returns name of the teaching routine
+    def getName(self):
+        raise NotImplementedError( "Should have implemented this" )
+
     # Returns the type this teacher implements
     def getType(self):
         raise NotImplementedError( "Should have implemented this" )
@@ -26,7 +30,7 @@ class TeacherPlugin():
         raise NotImplementedError( "Should have implemented this" )
 
 
-class StringTeacher(TeacherPlugin):
+class StringInputTeacher(TeacherPlugin):
     def __init__(self):
         pass
 
@@ -35,7 +39,6 @@ class StringTeacher(TeacherPlugin):
     
     def getData(self, name):
         datastr = input('Please enter a value for ' + name +  ' :')
-        print datastr
         return datastr
     
     def getRQTData(self, name):
@@ -47,8 +50,29 @@ class StringTeacher(TeacherPlugin):
         self.le.setText("")
         return self.le
     
+    def getName(self):
+        return "StringInputTeacher"
+
     def vizualizeData(self):
         print "halloWelt"
+
+
+class FloatInputTeacher(TeacherPlugin):
+    def __init__(self):
+        pass
+
+    def getName(self):
+        return "FloatInputTeacher"
+
+    def getType(self):
+        return "float"
+
+    def getData(self, name):
+        data_float = float(input("Please enter a value for " + name + " :"))
+        return data_float
+
+    def getRQTData(self, name):
+        pass
 
 
 class PoseInputTeacher(TeacherPlugin):
@@ -60,12 +84,27 @@ class PoseInputTeacher(TeacherPlugin):
     
     def getData(self, name):
         p = PoseStamped()
-        xval = float(input('Please enter a x value for ' + name +  ' :'))
-        yval = float(input('Please enter a y value for ' + name +  ' :'))
-        zval = float(input('Please enter a z value for ' + name +  ' :'))
-        p.pose.position.x = xval
-        p.pose.position.y = yval
-        p.pose.position.z = zval
+        
+        xval_pos = float(input('Please enter a position x value for ' + name +  ' :'))
+        yval_pos = float(input('Please enter a position y value for ' + name +  ' :'))
+        zval_pos = float(input('Please enter a position z value for ' + name +  ' :'))
+        
+        p.pose.position.x = xval_pos
+        p.pose.position.y = yval_pos
+        p.pose.position.z = zval_pos
+        
+        print " "
+        
+        xval_ori = float(input('Please enter a orientation x value for ' + name +  ' :'))
+        yval_ori = float(input('Please enter a orientation y value for ' + name +  ' :'))
+        zval_ori = float(input('Please enter a orientation z value for ' + name +  ' :'))
+        wval_ori = float(input('Please enter a orientation z value for ' + name +  ' :'))
+        
+        p.pose.orientation.x = xval_ori
+        p.pose.orientation.y = yval_ori
+        p.pose.orientation.z = zval_ori
+        p.pose.orientation.w = wval_ori
+
         return p
 
     def getRQTData(self, name):
@@ -76,13 +115,21 @@ class PoseInputTeacher(TeacherPlugin):
         #Create VBox with 3 lineedits for x, y, z as prototype
         pass
 
+    def getName(self):
+        return "PoseInputTeacher"
+
 class PoseTouchupTeacher(TeacherPlugin):
     current_pose = PoseStamped()
     def __init__(self):
         #TODO: create tf listener
         pass
+
+    def getName(self):
+        return "PoseTouchupTeacher"
+
     def getType(self):
         return "geometry_msgs/PoseStamped"
+
     def getData(self, name):
         #TODO: lookup transform /base_link to /arm_ee_link
         p = PoseStamped()

@@ -4,7 +4,6 @@ import rosmsg
 
 supported_types = ['geometry_msgs/PoseStamped', 'std_msgs/String', 'std_msgs/Float64', 'trajectory_msgs/JointTrajectory']
 
-
 class YamlManager():
 	def __init__(self, filename):
 		self.filename = filename
@@ -16,9 +15,15 @@ class YamlManager():
 			self.fields.append(d)
 			self.field_data.append(self.data[d])
 		stream.close()
+		#print self.fields
+		#print self.field_data
+		#print self.data
 
 	def getFields(self):
 		return self.fields
+
+	def getData(self):
+		return self.data
 
 	def getTypes(self):
 		msgtypes = []
