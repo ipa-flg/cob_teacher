@@ -51,7 +51,7 @@ class StringInputTeacher(TeacherPlugin):
         return self.le
     
     def getName(self):
-        return "StringInputTeacher"
+        return 'StringInputTeacher'
 
     def vizualizeData(self):
         print "halloWelt"
@@ -98,7 +98,7 @@ class PoseInputTeacher(TeacherPlugin):
         xval_ori = float(input('Please enter a orientation x value for ' + name +  ' :'))
         yval_ori = float(input('Please enter a orientation y value for ' + name +  ' :'))
         zval_ori = float(input('Please enter a orientation z value for ' + name +  ' :'))
-        wval_ori = float(input('Please enter a orientation z value for ' + name +  ' :'))
+        wval_ori = float(input('Please enter a orientation w value for ' + name +  ' :'))
         
         p.pose.orientation.x = xval_ori
         p.pose.orientation.y = yval_ori

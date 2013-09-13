@@ -1,8 +1,12 @@
 import yaml
+import yaml.constructor
 import roslib
 import rosmsg
 
+from FieldUpdater import *
+
 supported_types = ['geometry_msgs/PoseStamped', 'std_msgs/String', 'std_msgs/Float64', 'trajectory_msgs/JointTrajectory']
+supportedUpdaters = [PoseUpdater, StringUpdater, FloatUpdater] 
 
 class YamlManager():
 	def __init__(self, filename):
@@ -51,19 +55,14 @@ class YamlManager():
 				return t
 		return "Unknown"
 
-	def updateField(self, fieldname, data):
-		# this is not done yet (only a test version)
-		self.data[fieldname]["pose"]["position"]["x"] = data.pose.position.x
-		self.data[fieldname]["pose"]["position"]["y"] = data.pose.position.y
-		self.data[fieldname]["pose"]["position"]["z"] = data.pose.position.z
-
-		self.data[fieldname]["pose"]["orientation"]["x"] = data.pose.orientation.x
-		self.data[fieldname]["pose"]["orientation"]["y"] = data.pose.orientation.y
-		self.data[fieldname]["pose"]["orientation"]["z"] = data.pose.orientation.z
-		self.data[fieldname]["pose"]["orientation"]["w"] = data.pose.orientation.w
-		
+	def updateField(self, fieldname, data):		
+		current_fieldtype = self.getType(fieldname)
+		for updater in supportedUpdaters:
+			if(updater().getType() == current_fieldtype):
+				self.data = updater().update(fieldname, self.data, data)
 
 	def writeFile(self):
 		with open(self.filename, "w") as stream:
 			stream.write(yaml.dump(self.data, default_flow_style=False))
 			stream.close()
+

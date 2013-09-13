@@ -19,9 +19,8 @@ class SimpleTeacher:
 			teacher = self.findTeacher(ym.getType(field))
 			if(teacher != None):
 				p = teacher().getData(field)
-				#print p
 				ym.updateField(field, p)
-				ym.writeFile()
+		ym.writeFile()
 
 	def findTeacher(self, fieldtype):
 		self.teachers = []
@@ -38,7 +37,7 @@ class SimpleTeacher:
 				return self.teachers[0]
 
 	# in case several plugins were found, select teacher by input
-	def selectTeacher(self,teachers):
+	def selectTeacher(self, teachers):
 		print "Please select TeacherPlugin: "
 		print " "
 		k = 0
