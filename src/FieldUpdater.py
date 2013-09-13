@@ -1,4 +1,4 @@
-class FieldUpdater():
+class UpdaterPlugin():
     def __init__(self):
         raise NotImplementedError( "Should have implemented this" )
 
@@ -14,7 +14,7 @@ class FieldUpdater():
     def update(self, fieldname, updated_field, input_data):
         raise NotImplementedError( "Should have implemented this" )
 
-class PoseUpdater(FieldUpdater):
+class PoseUpdater(UpdaterPlugin):
     def __init__(self):
         pass
     
@@ -37,7 +37,7 @@ class PoseUpdater(FieldUpdater):
 
         return updated_field
 
-class StringUpdater(FieldUpdater):
+class StringUpdater(UpdaterPlugin):
     def __init__(self):
         pass
     
@@ -51,7 +51,7 @@ class StringUpdater(FieldUpdater):
         updated_field[fieldname] = input_data
         return updated_field
 
-class FloatUpdater(FieldUpdater):
+class FloatUpdater(UpdaterPlugin):
     def __init__(self):
         pass
     
