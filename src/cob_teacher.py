@@ -8,10 +8,15 @@ from geometry_msgs.msg import PoseStamped
 from teachers import *
 from YamlManager import *
 
-availableTeachers = [StringInputTeacher, FloatInputTeacher, PoseInputTeacher, PoseTouchupTeacher]
+availableTeachers = [StringInputTeacher, FloatInputTeacher, PoseInputTeacher, 
+					 PoseTouchupTeacher, PoseTeachInHandleTeacher]
 
 class SimpleTeacher:
 	def __init__(self, filename):
+		
+		# init cob_teacher node
+		rospy.init_node("cob_teacher", anonymous=True)
+
 		ym = YamlManager(filename)
 		for field in ym.getFields():
 			print " "
@@ -23,21 +28,21 @@ class SimpleTeacher:
 		ym.writeFile()
 
 	def findTeacher(self, fieldtype):
-		self.teachers = []
+		teachers_found = []
 		for teacher in availableTeachers:
 			if(teacher().getType() == fieldtype):
-				self.teachers.append(teacher)
+				teachers_found.append(teacher)
 		# check whether several plugins were found with common fieldtype 
-		if(len(self.teachers) > 1):
+		if(len(teachers_found) > 1):
 			print "Several plugins were found for fieldtype " + fieldtype
-			return self.selectTeacher(self.teachers)
+			return self.selectTeacherbyInput(teachers_found)
 		else:
-			if len(self.teachers) == 1:
+			if len(teachers_found) == 1:
 				print "Found plugin"
-				return self.teachers[0]
+				return teachers_found[0]
 
 	# in case several plugins were found, select teacher by input
-	def selectTeacher(self, teachers):
+	def selectTeacherbyInput(self, teachers):
 		print "Please select TeacherPlugin: "
 		print " "
 		k = 0

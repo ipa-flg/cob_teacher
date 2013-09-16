@@ -6,7 +6,7 @@ import rosmsg
 from FieldUpdater import *
 
 supported_types = ['geometry_msgs/PoseStamped', 'std_msgs/String', 'std_msgs/Float64', 'trajectory_msgs/JointTrajectory']
-supportedUpdaters = [PoseUpdater, StringUpdater, FloatUpdater] 
+supportedUpdaters = [PoseStampedUpdater, StringUpdater, FloatUpdater] 
 
 class YamlManager():
 	def __init__(self, filename):
@@ -60,6 +60,7 @@ class YamlManager():
 		for updater in supportedUpdaters:
 			if(updater().getType() == current_fieldtype):
 				self.data = updater().update(fieldname, self.data, data)
+
 
 	def writeFile(self):
 		with open(self.filename, "w") as stream:

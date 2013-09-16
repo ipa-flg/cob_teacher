@@ -14,7 +14,7 @@ class UpdaterPlugin():
     def update(self, fieldname, updated_field, input_data):
         raise NotImplementedError( "Should have implemented this" )
 
-class PoseUpdater(UpdaterPlugin):
+class PoseStampedUpdater(UpdaterPlugin):
     def __init__(self):
         pass
     
@@ -22,7 +22,7 @@ class PoseUpdater(UpdaterPlugin):
         return "geometry_msgs/PoseStamped"
     
     def getName(self):
-        return "PoseUpdater"
+        return "PoseStampedUpdater"
 
     def update(self, fieldname, updated_field, input_data):
         
