@@ -35,17 +35,18 @@ def publish_coordinate_systems():
 
     while not rospy.is_shutdown():
         # describing "/stereo/left" wrt "base_link"
-        br.sendTransform((0, 0.395, 0.49),
-                     tf.transformations.quaternion_from_euler(-0.78, -0.78, 0),
-                     rospy.Time.now(),
-                     "/stereo/left",
-                     "/base_link")
+        # axes = 'sxyz' fixed to global coord. system, axes = 'rxyz' wrt to new coord.system
+        br.sendTransform((0.11, -.56, 0.825),
+                    tf.transformations.quaternion_from_euler(-((45+45/4)*math.pi)/360, -((45+50)*math.pi)/360, 0, axes='rzxy'),
+                    rospy.Time.now(),
+                    "/stereo/left",
+                    "/base_link")
         # describing "/hanle_link" wrt "base_link"
-        br.sendTransform((0.2, 0.0, 0.0),
-                     tf.transformations.quaternion_from_euler(0, 0, 0),
-                     rospy.Time.now(),
-                     "/handle_link",
-                     "/base_link")
+        br.sendTransform((0.40, 0.0, -0.10),
+                    tf.transformations.quaternion_from_euler(0, 0, 0),
+                    rospy.Time.now(),
+                    "/handle_link",
+                    "/base_link")
         ###################################################################
         #pub.publish(p)
         ###################################################################
