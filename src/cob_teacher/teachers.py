@@ -6,6 +6,8 @@ from tf.msg import tfMessage
 from std_msgs.msg import String 
 from geometry_msgs.msg import PoseStamped
 
+from PyQt4 import QtGui, QtCore
+
 class TeacherPlugin():
     def __init__(self):
         raise NotImplementedError( "Should have implemented this" )
@@ -19,7 +21,7 @@ class TeacherPlugin():
         raise NotImplementedError( "Should have implemented this" )
     
     # The actual teachin routine. Returns data of the type this teacher implements, when run as a terminal application.
-    def getData(self, name):
+    def getData(self, name, current_data):
         raise NotImplementedError( "Should have implemented this" )
 
     # The actual teachin routine. Returns data of the type this teacher implements, when run as a rqt application.
@@ -49,10 +51,16 @@ class StringInputTeacher(TeacherPlugin):
     def getRQTData(self, name):
         return self.le.text()
     
-    def getRQTWidget(self, name):
-        self.le = QLineEdit()
-        self.le.setObjectName(name)
-        self.le.setText("")
+    def getRQTWidget(self, name, current_data):
+        self.le = QtGui.QGroupBox()
+        self.le.setTitle(name+":")
+        group_layout = QtGui.QVBoxLayout()
+        self.le.setLayout(group_layout)
+
+        self.le_edit = QtGui.QLineEdit()
+        self.le_edit.setObjectName(name)
+        self.le_edit.setText(str(current_data))
+        group_layout.addWidget(self.le_edit)
         return self.le
     
     def getName(self):
@@ -75,6 +83,18 @@ class FloatInputTeacher(TeacherPlugin):
     def getData(self, name):
         data_float = float(input("Please enter a value for " + name + " :"))
         return data_float
+
+    def getRQTWidget(self, name, current_data):
+        self.le = QtGui.QGroupBox()
+        self.le.setTitle(name+":")
+        group_layout = QtGui.QVBoxLayout()
+        self.le.setLayout(group_layout)
+
+        self.le_edit = QtGui.QLineEdit()
+        self.le_edit.setObjectName(name)
+        self.le_edit.setText(str(current_data))
+        group_layout.addWidget(self.le_edit)
+        return self.le
 
     def getRQTData(self, name):
         pass
@@ -114,11 +134,74 @@ class PoseInputTeacher(TeacherPlugin):
     def getRQTData(self, name):
         pass
     
-    def getRQTWidget(self, name):
-        #TODO: 
-        #Create VBox with 3 lineedits for x, y, z as prototype
-        pass
+    def getRQTWidget(self, name, current_data):
+        self.le = QtGui.QGroupBox()
+        self.le.setTitle(name+":")
+        grid_layout = QtGui.QGridLayout()
+        self.le.setLayout(grid_layout)
 
+        self.le_label_frame_id = QtGui.QLabel("frame_id:")
+        self.le_edit_frame_id = QtGui.QLineEdit()
+        self.le_edit_frame_id.setObjectName(name)
+        #self.le_edit_frame_id.setReadOnly(True)
+        self.le_edit_frame_id.setText(str(current_data['header']['frame_id']))
+        grid_layout.addWidget(self.le_label_frame_id, 0,0)
+        grid_layout.addWidget(self.le_edit_frame_id, 0,1)
+
+        self.le_labelx = QtGui.QLabel("Position X:")
+        self.le_editx = QtGui.QLineEdit()
+        self.le_editx.setObjectName(name)
+        #self.le_editx.setReadOnly(True)
+        self.le_editx.setText(str(current_data['pose']['position']['x']))
+        grid_layout.addWidget(self.le_labelx, 1,0)
+        grid_layout.addWidget(self.le_editx, 1,1)
+        
+        self.le_labely = QtGui.QLabel("Position Y:")
+        self.le_edity = QtGui.QLineEdit()
+        self.le_edity.setObjectName(name)
+        #self.le_edity.setReadOnly(True)
+        self.le_edity.setText(str(current_data['pose']['position']['y']))
+        grid_layout.addWidget(self.le_labely, 2,0)
+        grid_layout.addWidget(self.le_edity, 2,1)
+
+        self.le_labelz = QtGui.QLabel("Position Z:")
+        self.le_editz = QtGui.QLineEdit()
+        self.le_editz.setObjectName(name)
+        #self.le_editz.setReadOnly(True)
+        self.le_editz.setText(str(current_data['pose']['position']['z']))
+        grid_layout.addWidget(self.le_labelz, 3,0)
+        grid_layout.addWidget(self.le_editz, 3,1)
+
+
+        [r,p,y] = tf.transformations.euler_from_quaternion(current_data['pose']['orientation'].values())
+
+        self.le_labelroll = QtGui.QLabel("Orientation R:")
+        self.le_editroll = QtGui.QLineEdit()
+        self.le_editroll.setObjectName(name)
+        #self.le_editroll.setReadOnly(True)
+        self.le_editroll.setText(str(r))
+        grid_layout.addWidget(self.le_labelroll, 1,2)
+        grid_layout.addWidget(self.le_editroll, 1,3)
+
+        self.le_labelpitch = QtGui.QLabel("Orientation P:")
+        self.le_editpitch = QtGui.QLineEdit()
+        self.le_editpitch.setObjectName(name)
+        self.le_editpitch.setText(str(p))
+        #self.le_editpitch.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelpitch, 2,2)
+        grid_layout.addWidget(self.le_editpitch, 2,3)
+
+        self.le_labelyaw = QtGui.QLabel("Orientation Y:")
+        self.le_edityaw = QtGui.QLineEdit()
+        self.le_edityaw.setObjectName(name)
+        self.le_edityaw.setText(str(y))
+        #self.le_edityaw.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelyaw, 3,2)
+        grid_layout.addWidget(self.le_edityaw, 3,3)
+
+        return self.le
+
+    
     def getName(self):
         return "PoseInputTeacher"
 
@@ -139,7 +222,7 @@ class PoseTouchupTeacher(TeacherPlugin):
     def getRQTData(self, name):
         return self.current_pose
         
-    def getRQTWidget(self, name):
+    def getRQTWidget(self, name, current_data):
         #TODO: 
         #Create a trigger button with callback that does tf lookup and updates self.current_pose
         pass
@@ -182,7 +265,7 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
     def getRQTData(self, name):
         return self.current_pose
         
-    def getRQTWidget(self, name):
+    def getRQTWidget(self, name, current_data):
         #TODO: 
         #Create a trigger button with callback that does tf lookup and updates self.current_pose
         pass

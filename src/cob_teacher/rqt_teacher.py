@@ -24,6 +24,7 @@ class cob_teacher_plugin(Plugin):
         self._widget = QWidget()
         self._widget.setObjectName('cob_teacher_plugin')
         grid = QtGui.QGridLayout()
+        group_layout = QtGui.QVBoxLayout()
         grid.setSpacing(4)
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
@@ -32,16 +33,32 @@ class cob_teacher_plugin(Plugin):
         for config_file in args.config_file:
             print config_file
             ym = YamlManager(config_file)
-            count = 1
             for field in ym.getFields():
-                field_label = QtGui.QLabel(field+":")
-                field_edit = QtGui.QLineEdit(str(ym.data[field]))
-                grid.addWidget(field_label, count, 0)
-                grid.addWidget(field_edit, count, 1)
-                count += 1
-                print " "
-                print "Teaching", field, "(" + ym.getType(field) + "):"
-        self._widget.setLayout(grid)
+                teacher = self.findTeacher(ym.getType(field))
+                if(teacher != None):
+                    #p = teacher().getData(field)
+                    teach_widget = teacher().getRQTWidget(field, ym.data[field])
+                    #field_edit = QtGui.QLineEdit(str(ym.data[field]))
+                    group_layout.addWidget(teach_widget)
+                    #grid.addWidget(field_edit, count, 1)
+        self._widget.setLayout(group_layout)
+
+
+    def findTeacher(self, fieldtype):
+        teachers_found = []
+        for teacher in availableTeachers:
+            if(teacher().getType() == fieldtype):
+                teachers_found.append(teacher)
+        # check whether several plugins were found with common fieldtype 
+        if(len(teachers_found) > 1):
+            print "Several plugins were found for fieldtype " + fieldtype
+            return teachers_found[0]
+            #return self.selectTeacherbyInput(teachers_found)
+        else:
+            if len(teachers_found) == 1:
+                print "Found plugin"
+                return teachers_found[0]
+
 
     def _parse_args(self, argv):
         parser = argparse.ArgumentParser(prog='cob_teacher', add_help=False)
