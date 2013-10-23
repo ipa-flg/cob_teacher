@@ -52,8 +52,7 @@ class StringInputTeacher(TeacherPlugin):
         return self.le.text()
     
     def getRQTWidget(self, name, current_data):
-        self.le = QtGui.QGroupBox()
-        self.le.setTitle(name+":")
+        self.le = QtGui.QWidget()
         group_layout = QtGui.QVBoxLayout()
         self.le.setLayout(group_layout)
 
@@ -85,8 +84,7 @@ class FloatInputTeacher(TeacherPlugin):
         return data_float
 
     def getRQTWidget(self, name, current_data):
-        self.le = QtGui.QGroupBox()
-        self.le.setTitle(name+":")
+        self.le = QtGui.QWidget()
         group_layout = QtGui.QVBoxLayout()
         self.le.setLayout(group_layout)
 
@@ -105,6 +103,9 @@ class PoseInputTeacher(TeacherPlugin):
     
     def getType(self):
         return "geometry_msgs/PoseStamped"
+
+    def getName(self):
+        return "PoseInputTeacher"
     
     def getData(self, name):
         p = PoseStamped()   
@@ -135,8 +136,7 @@ class PoseInputTeacher(TeacherPlugin):
         pass
     
     def getRQTWidget(self, name, current_data):
-        self.le = QtGui.QGroupBox()
-        self.le.setTitle(name+":")
+        self.le = QtGui.QWidget()
         grid_layout = QtGui.QGridLayout()
         self.le.setLayout(grid_layout)
 
@@ -201,9 +201,6 @@ class PoseInputTeacher(TeacherPlugin):
 
         return self.le
 
-    
-    def getName(self):
-        return "PoseInputTeacher"
 
 class PoseTouchupTeacher(TeacherPlugin):
     current_pose = PoseStamped()
