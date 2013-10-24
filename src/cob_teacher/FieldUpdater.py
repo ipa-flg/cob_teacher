@@ -26,14 +26,14 @@ class PoseStampedUpdater(UpdaterPlugin):
 
     def update(self, fieldname, updated_field, input_data):
         
-        updated_field[fieldname]["pose"]["position"]["x"] = input_data.pose.position.x
-        updated_field[fieldname]["pose"]["position"]["y"] = input_data.pose.position.y
-        updated_field[fieldname]["pose"]["position"]["z"] = input_data.pose.position.z
+        updated_field[fieldname]["pose"]["position"]["x"] = float(input_data.pose.position.x)
+        updated_field[fieldname]["pose"]["position"]["y"] = float(input_data.pose.position.y)
+        updated_field[fieldname]["pose"]["position"]["z"] = float(input_data.pose.position.z)
 
-        updated_field[fieldname]["pose"]["orientation"]["x"] = input_data.pose.orientation.x
-        updated_field[fieldname]["pose"]["orientation"]["y"] = input_data.pose.orientation.y
-        updated_field[fieldname]["pose"]["orientation"]["z"] = input_data.pose.orientation.z
-        updated_field[fieldname]["pose"]["orientation"]["w"] = input_data.pose.orientation.w
+        updated_field[fieldname]["pose"]["orientation"]["x"] = float(input_data.pose.orientation.x)
+        updated_field[fieldname]["pose"]["orientation"]["y"] = float(input_data.pose.orientation.y)
+        updated_field[fieldname]["pose"]["orientation"]["z"] = float(input_data.pose.orientation.z)
+        updated_field[fieldname]["pose"]["orientation"]["w"] = float(input_data.pose.orientation.w)
 
         return updated_field
 
@@ -48,7 +48,21 @@ class StringUpdater(UpdaterPlugin):
         return "StringUpdater"
 
     def update(self, fieldname, updated_field, input_data):
-        updated_field[fieldname] = input_data
+        updated_field[fieldname] = str(input_data)
+        return updated_field
+
+class StdStringUpdater(UpdaterPlugin):
+    def __init__(self):
+        pass
+    
+    def getType(self):
+        return "std_msgs/String"
+    
+    def getName(self):
+        return "StdStringUpdater"
+
+    def update(self, fieldname, updated_field, input_data):
+        updated_field[fieldname]["data"] = str(input_data.data)
         return updated_field
 
 class FloatUpdater(UpdaterPlugin):
@@ -62,5 +76,5 @@ class FloatUpdater(UpdaterPlugin):
         return "FloatUpdater"
 
     def update(self, fieldname, updated_field, input_data):
-        updated_field[fieldname] = input_data
+        updated_field[fieldname] = float(input_data)
         return updated_field

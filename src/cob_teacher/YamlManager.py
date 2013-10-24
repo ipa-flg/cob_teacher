@@ -6,7 +6,7 @@ import rosmsg
 from FieldUpdater import *
 
 supported_types = ['geometry_msgs/PoseStamped', 'std_msgs/String', 'std_msgs/Float64', 'trajectory_msgs/JointTrajectory']
-supportedUpdaters = [PoseStampedUpdater, StringUpdater, FloatUpdater] 
+supportedUpdaters = [PoseStampedUpdater, StringUpdater, FloatUpdater, StdStringUpdater] 
 
 class YamlManager():
 	def __init__(self, filename):

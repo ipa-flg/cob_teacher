@@ -1,5 +1,6 @@
 import os
 import rospy
+import genpy
 import argparse
 
 from qt_gui.plugin import Plugin
@@ -12,12 +13,13 @@ from teachers import *
 from YamlManager import *
 
 
-availableTeachers = [StringInputTeacher, FloatInputTeacher, PoseInputTeacher, 
+availableTeachers = [StringInputTeacher, StdStringInputTeacher, FloatInputTeacher, PoseInputTeacher, 
                      PoseTouchupTeacher, PoseTeachInHandleTeacher]
 
 class cob_teacher_plugin(Plugin):
 
     plugin_chooser = []
+    current_teacher = []
 
     def __init__(self, context):
         super(cob_teacher_plugin, self).__init__(context)
@@ -25,20 +27,40 @@ class cob_teacher_plugin(Plugin):
         self.setObjectName('cob_teacher_plugin')
         self._widget = QWidget()
         self._widget.setObjectName('cob_teacher_plugin')
-        grid = QtGui.QGridLayout()
+
+
+
         self.group_layout = QtGui.QVBoxLayout()
-        grid.setSpacing(4)
 
 
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         context.add_widget(self._widget)
+
         args = self._parse_args(context.argv())
         for config_file in args.config_file:
             print config_file
             self.ym = YamlManager(config_file)
             for field in self.ym.getFields():
                 self.group_layout.addWidget(self.getFieldWidget(field))
+
+        placeholder = QtGui.QWidget()
+        self.group_layout.addWidget(placeholder, 1)
+
+        self.save_header = QtGui.QWidget()
+        self.save_layout = QtGui.QHBoxLayout()
+        self.save_header.setLayout(self.save_layout)
+        self.save_button = QtGui.QPushButton("Save")
+        self.save_button.connect(self.save_button, QtCore.SIGNAL('clicked()'), self.saveValues)
+
+        self.close_button = QtGui.QPushButton("Close")
+        self.connect(self.close_button, QtCore.SIGNAL('clicked()'), QtGui.qApp, QtCore.SLOT('quit()'))
+
+        self.save_layout.addWidget(self.save_button)
+        self.save_layout.addWidget(self.close_button)
+        self.group_layout.addWidget(self.save_header)
+
+
         self._widget.setLayout(self.group_layout)
 
     def getFieldWidget(self, field):
@@ -55,13 +77,26 @@ class cob_teacher_plugin(Plugin):
                 combo.addItem(teacher().getName())
             field_layout.addWidget(combo)
             self.plugin_chooser.append({"name": field, "layout": field_layout, "widget": None, "chooser": combo})
+            self.current_teacher.append({"name": field, "teacher": None})
             self.connect(combo, QtCore.SIGNAL('activated(QString)'), self.combo_chosen)
+        elif(len(teachers_found) == 0):
+            not_found_widget = QtGui.QLabel("No Plugin found for "+ self.ym.getType(field))
+            field_layout.addWidget(not_found_widget)
         else:
-            teach_widget = teachers_found[0]().getRQTWidget(field, self.ym.data[field])
+            teacher = teachers_found[0]()
+            self.current_teacher.append({"name": field, "teacher": teacher})
+            teach_widget = teacher.getRQTWidget(field, self.ym.data[field])
             field_layout.addWidget(teach_widget)
         return group
             
+    def saveValues(self):
+        for teacher in self.current_teacher:
+            if(teacher["teacher"] != None):
+                print "Updating:", teacher["name"]
+                self.ym.updateField(teacher["name"], teacher["teacher"].getRQTData(teacher["name"]))
 
+        print "saving values"
+        self.ym.writeFile()
 
     def combo_chosen(self, text):
         sender = self.sender()
@@ -70,12 +105,16 @@ class cob_teacher_plugin(Plugin):
                 print "Chosen: ", chooser["name"]
                 for teacher in availableTeachers:
                     if(teacher().getName() == text):
-                        print "Chosen: ", teacher().getName()
-                        teach_widget = teacher().getRQTWidget(chooser["name"], self.ym.data[chooser["name"]])
+                        this_teacher = teacher()
+                        print "Chosen: ", this_teacher.getName()
+                        teach_widget = this_teacher.getRQTWidget(chooser["name"], self.ym.data[chooser["name"]])
                         if(teach_widget != None):
                             #remove currently activated plugin
                             if(chooser["widget"] != None):
                                 chooser["widget"].setParent(None)
+                            for t in self.current_teacher:
+                                if(t["name"] == chooser["name"]):
+                                    t["teacher"] = this_teacher
                             chooser["widget"] = teach_widget
                             chooser["layout"].addWidget(teach_widget)
     
@@ -86,6 +125,16 @@ class cob_teacher_plugin(Plugin):
             if(teacher().getType() == self.ym.getType(fieldName)):
                 teachers_found.append(teacher)        
         return teachers_found
+
+    def closeEvent(self, event):
+        reply = QtGui.QMessageBox.question(self, 'Message',
+            "Are you sure to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+
+        if reply == QtGui.QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+
 
     def _parse_args(self, argv):
         parser = argparse.ArgumentParser(prog='cob_teacher', add_help=False)
