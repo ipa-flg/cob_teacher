@@ -18,10 +18,10 @@ def callback_handle_pose(pose):
     global handle_pose_in_camera
     handle_pose_in_camera = pose
 
-def publish_coordinate_systems():
+def broadcast_calibration_frames():
     global handle_pose_in_camera
 
-    rospy.init_node('publish_coordinate_systems')
+    rospy.init_node('broadcast_calibration_frames')
     
     # start transform boradcaster
     br = tf.TransformBroadcaster()
@@ -50,6 +50,6 @@ def publish_coordinate_systems():
 
 if __name__ == '__main__':
     try:
-        publish_coordinate_systems()
+        broadcast_calibration_frames()
     except rospy.ROSInterruptException:
         pass
