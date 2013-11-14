@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+import roslib;
+import rospy
+import tf
+import math
+
+from tf.msg import tfMessage
+from std_msgs.msg import String 
+from geometry_msgs.msg import PoseStamped
+
+from cob_teacher.srv import *
+
+base_to_camera_trans = [0,0,0]
+base_to_camera_rot = [0,0,0,0]
+calibration_succesful = False
+
+def broadcast_camera_frame(event):
+	global base_to_camera_trans
+	global base_to_camera_rot
+	global calibration_succesful
+
+	if (calibration_succesful == True):
+		br = tf.TransformBroadcaster()
+		# describing "/camera_link" wrt "/base_link"
+  		br.sendTransform((base_to_camera_trans[0], base_to_camera_trans[1], base_to_camera_trans[2]),
+  			(base_to_camera_rot[0], base_to_camera_rot[1], base_to_camera_rot[2], base_to_camera_rot[3]),
+  			rospy.Time.now(),
+  			"/stereo/left",
+  			"/base_link")
+
+def frame_calibration(req):
+	global base_to_camera_trans
+	global base_to_camera_rot
+	global calibration_succesful
+
+	print "calibration requested"
+
+	#start transform listener
+	lr = tf.TransformListener()
+	br = tf.TransformBroadcaster()
+	
+	# lookup successful?
+	calibration_succesful = False
+
+	while (calibration_succesful == False):
+		current_time = rospy.Time.now()
+		try:
+			# look for Magelium teach_in_handle frame
+			lr.waitForTransform("/teach_in_handle", "/stereo/left", current_time, rospy.Duration(2.0))
+			(trans, rot) = lr.lookupTransform("/teach_in_handle", "/stereo/left", current_time)
+
+			# describing "/camera_link" wrt "/default_handle_frame"
+			br.sendTransform((trans[0], trans[1], trans[2]),
+				(rot[0], rot[1], rot[2], rot[3]), 
+				rospy.Time.now(), 
+        		"/camera_link",
+        		"/default_handle_frame")
+		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException, tf.Exception) as e:
+			print e
+			pass
+
+		try:
+			# look for Magelium teach_in_handle frame
+			lr.waitForTransform("/base_link", "/camera_link", current_time, rospy.Duration(2.0))
+			(base_to_camera_trans, base_to_camera_rot) = lr.lookupTransform("/base_link", "/camera_link", current_time)
+						
+			calibration_succesful = True
+
+		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException, tf.Exception) as e:
+			print e
+			pass
+
+	return CalibrateCameraFrameResponse("success")
+
+def calibrate_camera_frame_server():
+
+	rospy.init_node('calibrate_camera_frame_server')
+	s = rospy.Service('calibrate_camera_frame', CalibrateCameraFrame, frame_calibration)
+	rospy.Timer(rospy.Duration(0.1), broadcast_camera_frame)
+	print "Ready to calibrate camera frame:"
+
+	rospy.spin()
+
+if __name__ == "__main__":
+	calibrate_camera_frame_server()
