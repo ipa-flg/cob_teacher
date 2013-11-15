@@ -275,23 +275,10 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
     current_pose = PoseStamped()
     def __init__(self):
         # start listener for pose 
-        # (1) listener for message type tfMessage.msg 
-        #     self.listener = rospy.Subscriber('tf', tfMessage, self.callback)
-        # (2) listener for message type PoseStamped.msg
         self.listener = rospy.Subscriber('MagBot/teach_in_handle_pose', PoseStamped, self.callback)
         pass
 
     def callback(self, data):
-        # (1) in case of message type tfMessage.msg:
-        #self.current_pose.pose.position.x = data.transforms[0].transform.translation.x
-        #self.current_pose.pose.position.y = data.transforms[0].transform.translation.y
-        #self.current_pose.pose.position.z = data.transforms[0].transform.translation.z
-        #self.current_pose.pose.orientation.x = data.transforms[0].transform.rotation.x
-        #self.current_pose.pose.orientation.y = data.transforms[0].transform.rotation.y
-        #self.current_pose.pose.orientation.z = data.transforms[0].transform.rotation.z
-        #self.current_pose.pose.orientation.w = data.transforms[0].transform.rotation.w
-        
-        # (2) in case of message type PoseStamped.msg:
         self.current_pose = data
 
     def getName(self):
@@ -308,21 +295,25 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
 
     def getRQTData(self, name):
         p = PoseStamped()
-        p.header.frame_id = self.le_edit_frame_id.text()
+        p.header.frame_id = str(self.le_edit_frame_id.text())
+
         p.pose.position.x = float(self.le_editx.text())
         p.pose.position.y = float(self.le_edity.text())
         p.pose.position.z = float(self.le_editz.text())
 
-        [x,y,z,w] = tf.transformations.quaternion_from_euler(float(self.le_editroll.text()), float(self.le_editpitch.text()), float(self.le_edityaw.text()))
-
-        p.pose.orientation.x = x
-        p.pose.orientation.y = y
-        p.pose.orientation.z = z
-        p.pose.orientation.w = w
+        p.pose.orientation.x = float(self.le_editori_x.text())
+        p.pose.orientation.y = float(self.le_editori_y.text())
+        p.pose.orientation.z = float(self.le_editori_z.text())
+        p.pose.orientation.w = float(self.le_editori_w.text())
 
         return p
         
     def getRQTWidget(self, name, current_data):
+        if(rospy.get_param('scene_already_calibrated') == False):
+            print "We need to calibrate this scene first"
+            # build calibration button
+            # with click response to call calibration server
+        
         self.le = QtGui.QWidget()
         grid_layout = QtGui.QGridLayout()
         self.le.setLayout(grid_layout)
@@ -360,47 +351,53 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
         grid_layout.addWidget(self.le_editz, 3,1)
 
 
-        [r,p,y] = tf.transformations.euler_from_quaternion(current_data['pose']['orientation'].values())
+        [x,y,z,w] = current_data['pose']['orientation'].values()
 
-        self.le_labelroll = QtGui.QLabel("Orientation R:")
-        self.le_editroll = QtGui.QLineEdit()
-        self.le_editroll.setObjectName(name)
-        self.le_editroll.setReadOnly(True)
-        self.le_editroll.setText(str(r))
-        grid_layout.addWidget(self.le_labelroll, 1,2)
-        grid_layout.addWidget(self.le_editroll, 1,3)
+        self.le_labelori_x = QtGui.QLabel("Orientation X:")
+        self.le_editori_x = QtGui.QLineEdit()
+        self.le_editori_x.setObjectName(name)
+        self.le_editori_x.setReadOnly(True)
+        self.le_editori_x.setText(str(x))
+        grid_layout.addWidget(self.le_labelori_x, 0,2)
+        grid_layout.addWidget(self.le_editori_x, 0,3)
 
-        self.le_labelpitch = QtGui.QLabel("Orientation P:")
-        self.le_editpitch = QtGui.QLineEdit()
-        self.le_editpitch.setObjectName(name)
-        self.le_editpitch.setText(str(p))
-        self.le_editpitch.setReadOnly(True)
-        grid_layout.addWidget(self.le_labelpitch, 2,2)
-        grid_layout.addWidget(self.le_editpitch, 2,3)
+        self.le_labelori_y = QtGui.QLabel("Orientation Y:")
+        self.le_editori_y = QtGui.QLineEdit()
+        self.le_editori_y.setObjectName(name)
+        self.le_editori_y.setText(str(y))
+        self.le_editori_y.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelori_y, 1,2)
+        grid_layout.addWidget(self.le_editori_y, 1,3)
 
-        self.le_labelyaw = QtGui.QLabel("Orientation Y:")
-        self.le_edityaw = QtGui.QLineEdit()
-        self.le_edityaw.setObjectName(name)
-        self.le_edityaw.setText(str(y))
-        self.le_edityaw.setReadOnly(True)
-        grid_layout.addWidget(self.le_labelyaw, 3,2)
-        grid_layout.addWidget(self.le_edityaw, 3,3)
+        self.le_labelori_z = QtGui.QLabel("Orientation Z:")
+        self.le_editori_z = QtGui.QLineEdit()
+        self.le_editori_z.setObjectName(name)
+        self.le_editori_z.setText(str(z))
+        self.le_editori_z.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelori_z, 2,2)
+        grid_layout.addWidget(self.le_editori_z, 2,3)
+
+        self.le_labelori_w = QtGui.QLabel("Orientation W:")
+        self.le_editori_w = QtGui.QLineEdit()
+        self.le_editori_w.setObjectName(name)
+        self.le_editori_w.setText(str(w))
+        self.le_editori_w.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelori_w, 3,2)
+        grid_layout.addWidget(self.le_editori_w, 3,3)
 
         self.le_teach_button = QtGui.QPushButton("Teach Now")
         grid_layout.addWidget(self.le_teach_button, 4,3)
         self.le_teach_button.connect(self.le_teach_button, QtCore.SIGNAL('clicked()'), self.updateRQTValues)
 
-
-
         return self.le
 
     def updateRQTValues(self):
-        self.le_edit_frame_id.setText(str( self.current_pose.header.frame_id))
+        self.le_edit_frame_id.setText(str(self.current_pose.header.frame_id))
         self.le_editx.setText(str( self.current_pose.pose.position.x))
-        self.le_edity.setText(str( self.current_pose['pose']['position']['y']))
-        self.le_editz.setText(str( self.current_pose['pose']['position']['z']))
+        self.le_edity.setText(str( self.current_pose.pose.position.y))
+        self.le_editz.setText(str( self.current_pose.pose.position.z))
 
-        [r,p,y] = tf.transformations.euler_from_quaternion( self.current_pose['pose']['orientation'].values())
-        self.le_editroll.setText(str(r))
-        self.le_editpitch.setText(str(p))
-        self.le_edityaw.setText(str(y))
+        self.le_editori_x.setText(str(self.current_pose.pose.orientation.x))
+        self.le_editori_y.setText(str(self.current_pose.pose.orientation.y))
+        self.le_editori_z.setText(str(self.current_pose.pose.orientation.z))
+        self.le_editori_w.setText(str(self.current_pose.pose.orientation.w))

@@ -20,6 +20,7 @@ def broadcast_default_handle_frame():
     ##############################################################
     rospy.set_param('teach_in_handle_frame_id', '/teach_in_handle')
     rospy.set_param('camera_frame_id', '/stereo/left')
+    rospy.set_param('scene_already_calibrated', False)
     ##############################################################
 
     while not rospy.is_shutdown():

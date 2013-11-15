@@ -26,6 +26,8 @@ class PoseStampedUpdater(UpdaterPlugin):
 
     def update(self, fieldname, updated_field, input_data):
         
+        updated_field[fieldname]["header"]["frame_id"] = str(input_data.header.frame_id)
+
         updated_field[fieldname]["pose"]["position"]["x"] = float(input_data.pose.position.x)
         updated_field[fieldname]["pose"]["position"]["y"] = float(input_data.pose.position.y)
         updated_field[fieldname]["pose"]["position"]["z"] = float(input_data.pose.position.z)

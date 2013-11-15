@@ -26,12 +26,15 @@ def broadcast_camera_frame(event):
 
 	if (calibration_succesful == True):
 		br = tf.TransformBroadcaster()
+
 		# describing "/camera_link" wrt "/base_link"
   		br.sendTransform((base_to_camera_trans[0], base_to_camera_trans[1], base_to_camera_trans[2]),
   			(base_to_camera_rot[0], base_to_camera_rot[1], base_to_camera_rot[2], base_to_camera_rot[3]),
   			rospy.Time.now(),
   			camera_frame_id,
   			"/base_link")
+  		# update parameter server
+  		rospy.set_param('scene_already_calibrated', True)
 
 def frame_calibration(req):
 	global base_to_camera_trans
@@ -58,8 +61,8 @@ def frame_calibration(req):
 		current_time = rospy.Time.now()
 		try:
 			# look for Magelium teach_in_handle frame
-			lr.waitForTransform(teach_in_handle_frame_id, "/stereo/left", current_time, rospy.Duration(2.0))
-			(trans, rot) = lr.lookupTransform(teach_in_handle_frame_id, "/stereo/left", current_time)
+			lr.waitForTransform(teach_in_handle_frame_id, camera_frame_id, current_time, rospy.Duration(2.0))
+			(trans, rot) = lr.lookupTransform(teach_in_handle_frame_id, camera_frame_id, current_time)
 
 			# describing "/camera_link" wrt "/default_handle_frame"
 			br.sendTransform((trans[0], trans[1], trans[2]),
