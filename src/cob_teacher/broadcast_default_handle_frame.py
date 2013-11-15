@@ -17,6 +17,11 @@ def broadcast_default_handle_frame():
     # start transform boradcaster
     br = tf.TransformBroadcaster()
 
+    ##############################################################
+    rospy.set_param('teach_in_handle_frame_id', '/teach_in_handle')
+    rospy.set_param('camera_frame_id', '/stereo/left')
+    ##############################################################
+
     while not rospy.is_shutdown():
         # describing "/default_handle_link" wrt "/base_link"
         br.sendTransform((0.64, 0.0, 0.0),
