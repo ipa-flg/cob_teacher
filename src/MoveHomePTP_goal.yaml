@@ -1,6 +1,7 @@
 #Generated once for configuration of goals
 #Config config/MoveHomePTP_goal.yaml
 target_frame: 'gripper_link'
+move_group: 'arm_left'
 goal_pose:
   header:
     seq: 0

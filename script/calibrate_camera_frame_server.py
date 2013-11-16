@@ -33,8 +33,6 @@ def broadcast_camera_frame(event):
   			rospy.Time.now(),
   			camera_frame_id,
   			"/base_link")
-  		# update parameter server
-  		rospy.set_param('scene_already_calibrated', True)
 
 def frame_calibration(req):
 	global base_to_camera_trans
@@ -82,6 +80,9 @@ def frame_calibration(req):
 		
 			calibration_succesful = True
 			print "calibration successful"
+			# update parameter server (scene is calibrated)
+  			rospy.set_param('scene_already_calibrated', True)
+  			
 		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException, tf.Exception) as e:
 			#print e
 			pass

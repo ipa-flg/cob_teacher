@@ -104,9 +104,16 @@ class cob_teacher_plugin(Plugin):
                 print "Teacher for", chooser["name"], "?"
                 for teacher in availableTeachers:
                     if(teacher().getName() == text):
+                        print "Chosen: ", text
                         this_teacher = teacher()
-                        print "Chosen: ", this_teacher.getName()
-                        teach_widget = this_teacher.getRQTWidget(chooser["name"], self.ym.data[chooser["name"]])
+                        if this_teacher.getName() == "PoseTouchupTeacher":
+                            target_frame = ""
+                            for t in self.current_teacher:
+                                if t["name"] == "target_frame":
+                                    target_frame = t["teacher"].getRQTData(t["name"])
+                            teach_widget = this_teacher.getRQTWidget(chooser["name"], self.ym.data[chooser["name"]], target_frame)
+                        else:
+                            teach_widget = this_teacher.getRQTWidget(chooser["name"], self.ym.data[chooser["name"]])
                         if(teach_widget != None):
                             #remove currently activated plugin
                             if(chooser["widget"] != None):
