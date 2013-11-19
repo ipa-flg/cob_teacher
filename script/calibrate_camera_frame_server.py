@@ -71,7 +71,7 @@ def frame_calibration(req):
         			"/dummy_camera_link",
         			"/default_handle_frame")
 				i = i + 1
-				rospy.Time.sleep(0.05)
+				rospy.sleep(0.05)
 
 		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException, tf.Exception) as e:
 			#print e

@@ -6,9 +6,13 @@ import sys
 
 import os
 
+import tf_conversions.posemath as pm
+import PyKDL
+
 from tf.msg import tfMessage
 from std_msgs.msg import String 
 from geometry_msgs.msg import PoseStamped
+
 
 
 from qt_gui.plugin import Plugin
@@ -403,6 +407,7 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
     def callback(self, data):
         self.current_pose = data
 
+
     def getName(self):
         return "PoseTeachInHandleTeacher"
 
@@ -427,8 +432,6 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
         p.pose.orientation.y = float(self.le_editori_y.text())
         p.pose.orientation.z = float(self.le_editori_z.text())
         p.pose.orientation.w = float(self.le_editori_w.text())
-
-        return p
         
     def getRQTWidget(self, name, current_data):    
         
