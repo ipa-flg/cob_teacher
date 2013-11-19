@@ -18,8 +18,9 @@ def broadcast_default_handle_frame():
     br = tf.TransformBroadcaster()
 
     ##############################################################
-    rospy.set_param('teach_in_handle_frame_id', '/teach_in_handle')
     rospy.set_param('camera_frame_id', '/stereo/left')
+    rospy.set_param('teach_in_handle_frame_id', '/teach_in_handle')
+    rospy.set_param('IPA_teach_in_handle_frame_id', '/IPA_teach_in_handle')
     rospy.set_param('scene_already_calibrated', False)
     ##############################################################
 
@@ -30,6 +31,13 @@ def broadcast_default_handle_frame():
                         rospy.Time.now(),
                         "/default_handle_frame",
                         "/base_link")
+
+        # broadcasting IPA_handle_frame 
+        br.sendTransform((0, 0, 0),
+                        tf.transformations.quaternion_from_euler(0, 3.14, 0),
+                        rospy.Time.now(),
+                        "/IPA_teach_in_handle",
+                        "/teach_in_handle")
 
         rospy.sleep(0.030)
     

@@ -63,15 +63,12 @@ def frame_calibration(req):
 			(trans, rot) = lr.lookupTransform(teach_in_handle_frame_id, camera_frame_id, current_time)
 
 			# describing "/camera_link" wrt "/default_handle_frame"
-			i=1
-			while (i< 6):
-				br.sendTransform((trans[0], trans[1], trans[2]),
-					(rot[0], rot[1], rot[2], rot[3]), 
-				rospy.Time.now(), 
-        			"/dummy_camera_link",
-        			"/default_handle_frame")
-				i = i + 1
-				rospy.sleep(0.05)
+			br.sendTransform((trans[0], trans[1], trans[2]),
+				(rot[0], rot[1], rot[2], rot[3]), 
+			rospy.Time.now(), 
+    			"/dummy_camera_link",
+    			"/default_handle_frame")
+			rospy.sleep(0.05)
 
 		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException, tf.Exception) as e:
 			#print e

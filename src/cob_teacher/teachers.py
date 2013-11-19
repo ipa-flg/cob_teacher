@@ -407,7 +407,6 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
     def callback(self, data):
         self.current_pose = data
 
-
     def getName(self):
         return "PoseTeachInHandleTeacher"
 
@@ -531,6 +530,11 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
         return self.le
 
     def updateRQTValues(self):
+        
+        #include tf lookup: camera_frame_id --> IPA_teach_in_handle_frame_id
+        # ...
+        # ...
+
         self.le_edit_frame_id.setText(str(self.current_pose.header.frame_id))
         self.le_editx.setText(str( self.current_pose.pose.position.x))
         self.le_edity.setText(str( self.current_pose.pose.position.y))
