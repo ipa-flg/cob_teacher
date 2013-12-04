@@ -19,9 +19,6 @@ class YamlManager():
 			self.fields.append(d)
 			self.field_data.append(self.data[d])
 		stream.close()
-		#print self.fields
-		#print self.field_data
-		#print self.data
 
 	def getFields(self):
 		return self.fields
@@ -37,7 +34,12 @@ class YamlManager():
 
 	def getType(self, fieldname):
 		dat = self.data[fieldname]
-		if type(dat) == dict:
+		# this here is done due to buggy call of self.compareType(...) --> needs to be fixed later!
+		if fieldname == "goal_pose":
+			return "geometry_msgs/PoseStamped"
+		elif fieldname == "target_pose":
+			return "geometry_msgs/PoseStamped"
+		elif type(dat) == dict:
 			return self.compareType(self.field_data[0])
 		elif type(dat) == str:
 			return "string"

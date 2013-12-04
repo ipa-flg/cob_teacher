@@ -29,9 +29,7 @@ class cob_teacher_plugin(Plugin):
         self._widget.setObjectName('cob_teacher_plugin')
 
 
-
         self.group_layout = QtGui.QVBoxLayout()
-
 
         if context.serial_number() > 1:
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
@@ -65,7 +63,7 @@ class cob_teacher_plugin(Plugin):
 
     def getFieldWidget(self, field):
         group = QtGui.QGroupBox()
-        group.setTitle(field+":")
+        group.setTitle("select teacher for: '"+ field + "'")
         field_layout = QtGui.QVBoxLayout()
         group.setLayout(field_layout)
         teachers_found = self.findTeachers(field)
@@ -87,6 +85,7 @@ class cob_teacher_plugin(Plugin):
             self.current_teacher.append({"name": field, "teacher": teacher})
             teach_widget = teacher.getRQTWidget(field, self.ym.data[field])
             field_layout.addWidget(teach_widget)
+        
         return group
             
     def saveValues(self):
@@ -102,12 +101,19 @@ class cob_teacher_plugin(Plugin):
         sender = self.sender()
         for chooser in self.plugin_chooser:
             if(chooser["chooser"] == sender):
-                print "Chosen: ", chooser["name"]
+                print "Teacher for", chooser["name"], "?"
                 for teacher in availableTeachers:
                     if(teacher().getName() == text):
+                        print "Chosen: ", text
                         this_teacher = teacher()
-                        print "Chosen: ", this_teacher.getName()
-                        teach_widget = this_teacher.getRQTWidget(chooser["name"], self.ym.data[chooser["name"]])
+                        if this_teacher.getName() == "PoseTouchupTeacher":
+                            target_frame = ""
+                            for t in self.current_teacher:
+                                if t["name"] == "target_frame":
+                                    target_frame = t["teacher"].getRQTData(t["name"])
+                            teach_widget = this_teacher.getRQTWidget(chooser["name"], self.ym.data[chooser["name"]], target_frame)
+                        else:
+                            teach_widget = this_teacher.getRQTWidget(chooser["name"], self.ym.data[chooser["name"]])
                         if(teach_widget != None):
                             #remove currently activated plugin
                             if(chooser["widget"] != None):
