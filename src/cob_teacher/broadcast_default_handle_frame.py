@@ -26,7 +26,7 @@ def broadcast_default_handle_frame():
 
     while not rospy.is_shutdown():
         # describing "/default_handle_link" wrt "/base_link"
-        br.sendTransform((0.64, 0.0, 0.0),
+        br.sendTransform((0.0, 0.64, 0.0),
                         tf.transformations.quaternion_from_euler(0, 0, -1.57079),
                         rospy.Time.now(),
                         "/default_handle_frame",
@@ -34,7 +34,7 @@ def broadcast_default_handle_frame():
 
         # broadcasting IPA_handle_frame 
         br.sendTransform((0, 0, 0),
-                        tf.transformations.quaternion_from_euler(0, 3.14, 0),
+                        tf.transformations.quaternion_from_euler(0, 3.14159265359, 0),
                         rospy.Time.now(),
                         "/IPA_teach_in_handle",
                         "/teach_in_handle")
