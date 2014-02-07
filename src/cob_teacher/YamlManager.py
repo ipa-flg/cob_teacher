@@ -57,7 +57,8 @@ class YamlManager():
 				return t
 		return "Unknown"
 
-	def updateField(self, fieldname, data):		
+	def updateField(self, fieldname, data):
+		print data		
 		current_fieldtype = self.getType(fieldname)
 		for updater in supportedUpdaters:
 			if(updater().getType() == current_fieldtype):

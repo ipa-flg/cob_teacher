@@ -1,17 +1,17 @@
 target_pose:
   header:
-    frame_id: /stereo/left
     seq: 0
     stamp:
-      nsecs: 0
       secs: 0
+      nsecs: 0
+    frame_id: '/map'
   pose:
-    orientation:
-      w: 0.979932182274
-      x: 0.157521945014
-      y: 0.0257332019157
-      z: -0.119198292216
     position:
-      x: -0.0888263320923
-      y: 2.2719921875
-      z: -0.165421340942
+      x: 0.497
+      y: -1.036
+      z: 0.0
+    orientation:
+      x: 0.0
+      y: 0.0
+      z: 0.904
+      w: -0.427

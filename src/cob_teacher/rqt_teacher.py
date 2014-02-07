@@ -14,7 +14,7 @@ from YamlManager import *
 
 
 availableTeachers = [StringInputTeacher, StdStringInputTeacher, FloatInputTeacher, PoseInputTeacher, 
-                     PoseTouchupTeacher, PoseTeachInHandleTeacher]
+                     PoseTouchupTeacher, MAG_TeachInHandleTeacher, DTI_TeachInHandleTeacher]
 
 class cob_teacher_plugin(Plugin):
 
@@ -39,7 +39,9 @@ class cob_teacher_plugin(Plugin):
         for config_file in args.config_file:
             print config_file
             self.ym = YamlManager(config_file)
-            for field in self.ym.getFields():
+            # check what fields exist in the config file:
+            Fields = self.ym.getFields()
+            for field in Fields:
                 self.group_layout.addWidget(self.getFieldWidget(field))
 
         placeholder = QtGui.QWidget()
@@ -62,11 +64,16 @@ class cob_teacher_plugin(Plugin):
         self._widget.setLayout(self.group_layout)
 
     def getFieldWidget(self, field):
+        # set gui layout
+        teachers_found = self.findTeachers(field)
         group = QtGui.QGroupBox()
-        group.setTitle("select teacher for: '"+ field + "'")
+        if(len(teachers_found) > 1):
+            group.setTitle("select teacher for: '"+ field + "'")
+        else:
+            group.setTitle(""+ field + "")
         field_layout = QtGui.QVBoxLayout()
         group.setLayout(field_layout)
-        teachers_found = self.findTeachers(field)
+
         if(len(teachers_found) > 1):
             print "Several plugins were found for fieldtype " + self.ym.getType(field)
             combo = QtGui.QComboBox()
@@ -140,7 +147,6 @@ class cob_teacher_plugin(Plugin):
             event.accept()
         else:
             event.ignore()
-
 
     def _parse_args(self, argv):
         parser = argparse.ArgumentParser(prog='cob_teacher', add_help=False)

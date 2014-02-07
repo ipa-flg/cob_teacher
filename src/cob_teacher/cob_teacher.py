@@ -9,11 +9,10 @@ from teachers import *
 from YamlManager import *
 
 availableTeachers = [StringInputTeacher, FloatInputTeacher, PoseInputTeacher, 
-					 PoseTouchupTeacher, PoseTeachInHandleTeacher]
+					 PoseTouchupTeacher, MAG_TeachInHandleTeacher, DTI_TeachInHandleTeacher]
 
 class SimpleTeacher:
 	def __init__(self, filename):
-		
 		# init cob_teacher node
 		rospy.init_node("cob_teacher", anonymous=True)
 
