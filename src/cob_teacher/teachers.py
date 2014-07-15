@@ -232,7 +232,11 @@ class PoseInputTeacher(TeacherPlugin):
         grid_layout.addWidget(self.le_editz, 3,1)
 
 
-        [r,p,y] = tf.transformations.euler_from_quaternion(current_data['pose']['orientation'].values())
+        quat =  ( current_data['pose']['orientation']['x'],
+                current_data['pose']['orientation']['y'],
+                current_data['pose']['orientation']['z'],
+                current_data['pose']['orientation']['w'])
+        [r,p,y] = tf.transformations.euler_from_quaternion(quat)
 
         self.le_labelroll = QtGui.QLabel("Orientation R:")
         self.le_editroll = QtGui.QLineEdit()
