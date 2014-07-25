@@ -13,6 +13,8 @@ from tf.msg import tfMessage
 from std_msgs.msg import String 
 from geometry_msgs.msg import PoseStamped
 
+from prace_ps_move_controller.msg import move_ps_controller
+
 import numpy as np
 import copy
 
@@ -561,14 +563,23 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
 class PalettePoseTeacher(TeacherPlugin):
     current_iterate = 0
     current_pose = PoseStamped()
+    ps_move_hold_value = 0
     
     def __init__(self):
         # start listener for pose 
-        #self.listener = rospy.Subscriber('MagBot/teach_in_handle_pose', PoseStamped, self.callback)
+        #self.handle_listener = rospy.Subscriber("/MagBot/teach_in_handle_pose", PoseStamped, self.callback_handle_pose)
+        self.ps_move_listener = rospy.Subscriber("/button_value_ps_move_controller", move_ps_controller, self.callback_ps_move_button)
         pass
 
-    def callback(self, data):
-        self.current_pose = data
+    #def callback_handle_pose(self, data):
+    #    self.current_pose = data
+
+    def callback_ps_move_button(self, data):
+        if(data.button_value == 16):
+            self.ps_move_hold_value = 16    
+        if((self.ps_move_hold_value == 16) and (data.button_value != 16)):
+            self.ps_move_hold_value = 0
+            self.updateRQTValues(0, True)
 
     def getName(self):
         return "PalettePoseTeacher"
@@ -903,7 +914,25 @@ class PalettePoseTeacher(TeacherPlugin):
 
         return self.le
 
-    def updateRQTValues(self, current_iterate, send_by_ps_move):
+    def updateRQTValues(self, current_pose_iter, send_by_ps_move):
+        # get curren handle pose in "base_link": ############################################
+        self.lr = tf.TransformListener()
+        try:
+            now = rospy.Time.now()
+            self.lr.waitForTransform("teach_in_handle", "base_link", now, rospy.Duration(0.5))
+            (trans,rot) = self.lr.lookupTransform("teach_in_handle", "base_link", now)
+        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+            pass
+        
+        self.current_pose.header.frame_id = "base_link"
+        self.current_pose.pose.position.x = trans[0]
+        self.current_pose.pose.position.y = trans[1]
+        self.current_pose.pose.position.z = trans[2]
+        self.current_pose.pose.orientation.x = rot[0]
+        self.current_pose.pose.orientation.y = rot[1]
+        self.current_pose.pose.orientation.z = rot[2]
+        self.current_pose.pose.orientation.w = rot[3]
+        #######################################################################################
 
         if(send_by_ps_move):
             if(self.current_iterate <= 1):
@@ -940,7 +969,7 @@ class PalettePoseTeacher(TeacherPlugin):
                 self.le_editori_w_third.setText(str(self.current_pose.pose.orientation.w))
                 self.current_iterate = 3
         else:
-            if(current_iterate == 1):
+            if(current_pose_iter == 1):
                 self.le_edit_frame_id_first.setText(str( self.current_pose.header.frame_id))
                 self.le_editx_first.setText(str( self.current_pose.pose.position.x))
                 self.le_edity_first.setText(str( self.current_pose.pose.position.y))
@@ -951,7 +980,7 @@ class PalettePoseTeacher(TeacherPlugin):
                 self.le_editori_z_first.setText(str(self.current_pose.pose.orientation.z))
                 self.le_editori_w_first.setText(str(self.current_pose.pose.orientation.w))
 
-            elif(current_iterate == 2):
+            elif(current_pose_iter == 2):
                 self.le_edit_frame_id_second.setText(str( self.current_pose.header.frame_id))
                 self.le_editx_second.setText(str( self.current_pose.pose.position.x))
                 self.le_edity_second.setText(str( self.current_pose.pose.position.y))
@@ -962,7 +991,7 @@ class PalettePoseTeacher(TeacherPlugin):
                 self.le_editori_z_second.setText(str(self.current_pose.pose.orientation.z))
                 self.le_editori_w_second.setText(str(self.current_pose.pose.orientation.w))
 
-            else:
+            elif(current_pose_iter == 3):
                 self.le_edit_frame_id_third.setText(str( self.current_pose.header.frame_id))
                 self.le_editx_third.setText(str( self.current_pose.pose.position.x))
                 self.le_edity_third.setText(str( self.current_pose.pose.position.y))
