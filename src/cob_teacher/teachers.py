@@ -553,3 +553,309 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
         print "calibrating scene..."
         cmd = 'rosrun cob_teacher calibrate_camera_frame_client.py'
         os.system(cmd)
+
+
+class PalettePoseTeacher(TeacherPlugin):
+    current_teach_iterate = 0
+    current_pose = PoseStamped()
+    first_pose = PoseStamped()
+    second_pose = PoseStamped()
+    third_pose = PoseStamped()
+    def __init__(self):
+        # start listener for pose 
+        #self.listener = rospy.Subscriber('MagBot/teach_in_handle_pose', PoseStamped, self.callback)
+        pass
+
+    def callback(self, data):
+        self.current_pose = data
+
+    def getName(self):
+        return "PalettePoseTeacher"
+
+    def getType(self):
+        return "geometry_msgs/PoseStamped"
+
+    def getData(self, name):
+        pass
+
+    def getRQTData(self, name):
+        p = PoseStamped()
+        p.header.frame_id = str(self.le_edit_frame_id.text())
+
+        p.pose.position.x = float(self.le_editx.text())
+        p.pose.position.y = float(self.le_edity.text())
+        p.pose.position.z = float(self.le_editz.text())
+
+        p.pose.orientation.x = float(self.le_editori_x.text())
+        p.pose.orientation.y = float(self.le_editori_y.text())
+        p.pose.orientation.z = float(self.le_editori_z.text())
+        p.pose.orientation.w = float(self.le_editori_w.text())
+        
+    def getRQTWidget(self, name, current_data):    
+        
+        row_start = 0 
+        column_start = 0
+
+        self.le = QtGui.QWidget()
+        grid_layout = QtGui.QGridLayout()
+        self.le.setLayout(grid_layout)
+
+        self.le_label_title = QtGui.QLabel("Teaching Palette Poses")
+        grid_layout.addWidget(self.le_label_title, row_start + 1,0)
+##############################################################################################
+#First Pose:
+##############################################################################################
+        self.le_teach_first_button = QtGui.QPushButton("Teach First Pose")
+        grid_layout.addWidget(self.le_teach_first_button, row_start + 2, column_start + 1)
+        self.le_teach_first_button.connect(self.le_teach_first_button, QtCore.SIGNAL('clicked()'), self.updateRQTValues)
+   
+        self.le_label_frame_id = QtGui.QLabel("frame_id:")
+        self.le_edit_frame_id = QtGui.QLineEdit()
+        self.le_edit_frame_id.setObjectName(name)
+        self.le_edit_frame_id.setReadOnly(True)
+        #self.le_edit_frame_id.setText(str(current_data['header']['frame_id']))
+        self.le_edit_frame_id.setText(str(""))
+        grid_layout.addWidget(self.le_label_frame_id, row_start + 3, column_start + 0)
+        grid_layout.addWidget(self.le_edit_frame_id, row_start + 3, column_start + 1)
+
+        self.le_labelx = QtGui.QLabel("Position X:")
+        self.le_editx = QtGui.QLineEdit()
+        self.le_editx.setObjectName(name)
+        self.le_editx.setReadOnly(True)
+        #self.le_editx.setText(str(current_data['pose']['position']['x']))
+        self.le_editx.setText(str(""))
+        grid_layout.addWidget(self.le_labelx, row_start + 4, column_start +  0)
+        grid_layout.addWidget(self.le_editx, row_start + 4, column_start + 1)
+        
+        self.le_labely = QtGui.QLabel("Position Y:")
+        self.le_edity = QtGui.QLineEdit()
+        self.le_edity.setObjectName(name)
+        self.le_edity.setReadOnly(True)
+        #self.le_edity.setText(str(current_data['pose']['position']['y']))
+        self.le_edity.setText(str(""))
+        grid_layout.addWidget(self.le_labely, row_start + 5, column_start + 0)
+        grid_layout.addWidget(self.le_edity, row_start + 5, column_start + 1 )
+
+        self.le_labelz = QtGui.QLabel("Position Z:")
+        self.le_editz = QtGui.QLineEdit()
+        self.le_editz.setObjectName(name)
+        self.le_editz.setReadOnly(True)
+        #self.le_editz.setText(str(current_data['pose']['position']['z']))
+        self.le_editz.setText(str(""))
+        grid_layout.addWidget(self.le_labelz, row_start + 6, column_start + 0)
+        grid_layout.addWidget(self.le_editz, row_start + 6, column_start + 1)
+
+        [x,y,z,w] = current_data['pose']['orientation'].values()
+
+        self.le_labelori_x = QtGui.QLabel("Orientation X:")
+        self.le_editori_x = QtGui.QLineEdit()
+        self.le_editori_x.setObjectName(name)
+        self.le_editori_x.setReadOnly(True)
+        #self.le_editori_x.setText(str(x))
+        self.le_editori_x.setText(str(""))
+        grid_layout.addWidget(self.le_labelori_x, row_start + 7, column_start + 0)
+        grid_layout.addWidget(self.le_editori_x, row_start + 7, column_start + 1)
+
+        self.le_labelori_y = QtGui.QLabel("Orientation Y:")
+        self.le_editori_y = QtGui.QLineEdit()
+        self.le_editori_y.setObjectName(name)
+        #self.le_editori_y.setText(str(y))
+        self.le_editori_y.setText(str(""))
+        self.le_editori_y.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelori_y, row_start + 8, column_start + 0)
+        grid_layout.addWidget(self.le_editori_y, row_start + 8, column_start + 1)
+
+        self.le_labelori_z = QtGui.QLabel("Orientation Z:")
+        self.le_editori_z = QtGui.QLineEdit()
+        self.le_editori_z.setObjectName(name)
+        #self.le_editori_z.setText(str(z))
+        self.le_editori_z.setText(str(""))
+        self.le_editori_z.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelori_z, row_start + 9,column_start + 0)
+        grid_layout.addWidget(self.le_editori_z, row_start + 9,column_start + 1)
+
+        self.le_labelori_w = QtGui.QLabel("Orientation W:")
+        self.le_editori_w = QtGui.QLineEdit()
+        self.le_editori_w.setObjectName(name)
+        #self.le_editori_w.setText(str(w))
+        self.le_editori_w.setText(str(""))
+        self.le_editori_w.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelori_w, row_start + 10, column_start + 0)
+        grid_layout.addWidget(self.le_editori_w, row_start + 10,column_start + 1)
+
+##############################################################################################
+#Second Pose:
+##############################################################################################
+        column_start = 2
+        self.le_teach_first_button = QtGui.QPushButton("Teach Second Pose")
+        grid_layout.addWidget(self.le_teach_first_button, row_start + 2, column_start + 1)
+        self.le_teach_first_button.connect(self.le_teach_first_button, QtCore.SIGNAL('clicked()'), self.updateRQTValues)
+   
+        self.le_label_frame_id = QtGui.QLabel("frame_id:")
+        self.le_edit_frame_id = QtGui.QLineEdit()
+        self.le_edit_frame_id.setObjectName(name)
+        self.le_edit_frame_id.setReadOnly(True)
+        #self.le_edit_frame_id.setText(str(current_data['header']['frame_id']))
+        self.le_edit_frame_id.setText(str(""))
+        grid_layout.addWidget(self.le_label_frame_id, row_start + 3, column_start + 0)
+        grid_layout.addWidget(self.le_edit_frame_id, row_start + 3, column_start + 1)
+
+        self.le_labelx = QtGui.QLabel("Position X:")
+        self.le_editx = QtGui.QLineEdit()
+        self.le_editx.setObjectName(name)
+        self.le_editx.setReadOnly(True)
+        #self.le_editx.setText(str(current_data['pose']['position']['x']))
+        self.le_editx.setText(str(""))
+        grid_layout.addWidget(self.le_labelx, row_start + 4, column_start +  0)
+        grid_layout.addWidget(self.le_editx, row_start + 4, column_start + 1)
+        
+        self.le_labely = QtGui.QLabel("Position Y:")
+        self.le_edity = QtGui.QLineEdit()
+        self.le_edity.setObjectName(name)
+        self.le_edity.setReadOnly(True)
+        #self.le_edity.setText(str(current_data['pose']['position']['y']))
+        self.le_edity.setText(str(""))
+        grid_layout.addWidget(self.le_labely, row_start + 5, column_start + 0)
+        grid_layout.addWidget(self.le_edity, row_start + 5, column_start + 1 )
+
+        self.le_labelz = QtGui.QLabel("Position Z:")
+        self.le_editz = QtGui.QLineEdit()
+        self.le_editz.setObjectName(name)
+        self.le_editz.setReadOnly(True)
+        #self.le_editz.setText(str(current_data['pose']['position']['z']))
+        self.le_editz.setText(str(""))
+        grid_layout.addWidget(self.le_labelz, row_start + 6, column_start + 0)
+        grid_layout.addWidget(self.le_editz, row_start + 6, column_start + 1)
+
+        [x,y,z,w] = current_data['pose']['orientation'].values()
+
+        self.le_labelori_x = QtGui.QLabel("Orientation X:")
+        self.le_editori_x = QtGui.QLineEdit()
+        self.le_editori_x.setObjectName(name)
+        self.le_editori_x.setReadOnly(True)
+        #self.le_editori_x.setText(str(x))
+        self.le_editori_x.setText(str(""))
+        grid_layout.addWidget(self.le_labelori_x, row_start + 7, column_start + 0)
+        grid_layout.addWidget(self.le_editori_x, row_start + 7, column_start + 1)
+
+        self.le_labelori_y = QtGui.QLabel("Orientation Y:")
+        self.le_editori_y = QtGui.QLineEdit()
+        self.le_editori_y.setObjectName(name)
+        #self.le_editori_y.setText(str(y))
+        self.le_editori_y.setText(str(""))
+        self.le_editori_y.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelori_y, row_start + 8, column_start + 0)
+        grid_layout.addWidget(self.le_editori_y, row_start + 8, column_start + 1)
+
+        self.le_labelori_z = QtGui.QLabel("Orientation Z:")
+        self.le_editori_z = QtGui.QLineEdit()
+        self.le_editori_z.setObjectName(name)
+        #self.le_editori_z.setText(str(z))
+        self.le_editori_z.setText(str(""))
+        self.le_editori_z.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelori_z, row_start + 9,column_start + 0)
+        grid_layout.addWidget(self.le_editori_z, row_start + 9,column_start + 1)
+
+        self.le_labelori_w = QtGui.QLabel("Orientation W:")
+        self.le_editori_w = QtGui.QLineEdit()
+        self.le_editori_w.setObjectName(name)
+        #self.le_editori_w.setText(str(w))
+        self.le_editori_w.setText(str(""))
+        self.le_editori_w.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelori_w, row_start + 10, column_start + 0)
+        grid_layout.addWidget(self.le_editori_w, row_start + 10,column_start + 1)
+          
+##############################################################################################
+#Third Pose:
+##############################################################################################
+        column_start = 4
+        self.le_teach_first_button = QtGui.QPushButton("Teach Third Pose")
+        grid_layout.addWidget(self.le_teach_first_button, row_start + 2, column_start + 1)
+        self.le_teach_first_button.connect(self.le_teach_first_button, QtCore.SIGNAL('clicked()'), self.updateRQTValues)
+   
+        self.le_label_frame_id_first = QtGui.QLabel("frame_id:")
+        self.le_edit_frame_id_first = QtGui.QLineEdit()
+        self.le_edit_frame_id_first.setObjectName(name)
+        self.le_edit_frame_id_first.setReadOnly(True)
+        #self.le_edit_frame_id.setText(str(current_data['header']['frame_id']))
+        self.le_edit_frame_id_first.setText(str(""))
+        grid_layout.addWidget(self.le_label_frame_id_first, row_start + 3, column_start + 0)
+        grid_layout.addWidget(self.le_edit_frame_id_first, row_start + 3, column_start + 1)
+
+        self.le_labelx_first = QtGui.QLabel("Position X:")
+        self.le_editx_first = QtGui.QLineEdit()
+        self.le_editx_first.setObjectName(name)
+        self.le_editx_first.setReadOnly(True)
+        #self.le_editx.setText(str(current_data['pose']['position']['x']))
+        self.le_editx_first.setText(str(""))
+        grid_layout.addWidget(self.le_labelx_first, row_start + 4, column_start +  0)
+        grid_layout.addWidget(self.le_editx, row_start + 4, column_start + 1)
+        
+        self.le_labely = QtGui.QLabel("Position Y:")
+        self.le_edity = QtGui.QLineEdit()
+        self.le_edity.setObjectName(name)
+        self.le_edity.setReadOnly(True)
+        #self.le_edity.setText(str(current_data['pose']['position']['y']))
+        self.le_edity.setText(str(""))
+        grid_layout.addWidget(self.le_labely, row_start + 5, column_start + 0)
+        grid_layout.addWidget(self.le_edity, row_start + 5, column_start + 1 )
+
+        self.le_labelz = QtGui.QLabel("Position Z:")
+        self.le_editz = QtGui.QLineEdit()
+        self.le_editz.setObjectName(name)
+        self.le_editz.setReadOnly(True)
+        #self.le_editz.setText(str(current_data['pose']['position']['z']))
+        self.le_editz.setText(str(""))
+        grid_layout.addWidget(self.le_labelz, row_start + 6, column_start + 0)
+        grid_layout.addWidget(self.le_editz, row_start + 6, column_start + 1)
+
+        [x,y,z,w] = current_data['pose']['orientation'].values()
+
+        self.le_labelori_x = QtGui.QLabel("Orientation X:")
+        self.le_editori_x = QtGui.QLineEdit()
+        self.le_editori_x.setObjectName(name)
+        self.le_editori_x.setReadOnly(True)
+        #self.le_editori_x.setText(str(x))
+        self.le_editori_x.setText(str(""))
+        grid_layout.addWidget(self.le_labelori_x, row_start + 7, column_start + 0)
+        grid_layout.addWidget(self.le_editori_x, row_start + 7, column_start + 1)
+
+        self.le_labelori_y = QtGui.QLabel("Orientation Y:")
+        self.le_editori_y = QtGui.QLineEdit()
+        self.le_editori_y.setObjectName(name)
+        #self.le_editori_y.setText(str(y))
+        self.le_editori_y.setText(str(""))
+        self.le_editori_y.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelori_y, row_start + 8, column_start + 0)
+        grid_layout.addWidget(self.le_editori_y, row_start + 8, column_start + 1)
+
+        self.le_labelori_z = QtGui.QLabel("Orientation Z:")
+        self.le_editori_z = QtGui.QLineEdit()
+        self.le_editori_z.setObjectName(name)
+        #self.le_editori_z.setText(str(z))
+        self.le_editori_z.setText(str(""))
+        self.le_editori_z.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelori_z, row_start + 9,column_start + 0)
+        grid_layout.addWidget(self.le_editori_z, row_start + 9,column_start + 1)
+
+        self.le_labelori_w = QtGui.QLabel("Orientation W:")
+        self.le_editori_w = QtGui.QLineEdit()
+        self.le_editori_w.setObjectName(name)
+        #self.le_editori_w.setText(str(w))
+        self.le_editori_w.setText(str(""))
+        self.le_editori_w.setReadOnly(True)
+        grid_layout.addWidget(self.le_labelori_w, row_start + 10, column_start + 0)
+        grid_layout.addWidget(self.le_editori_w, row_start + 10,column_start + 1)
+
+
+        return self.le
+
+    def updateRQTValues(self):
+        self.le_editx.setText(str( self.current_pose.pose.position.x))
+        self.le_edity.setText(str( self.current_pose.pose.position.y))
+        self.le_editz.setText(str( self.current_pose.pose.position.z))
+
+        self.le_editori_x.setText(str(self.current_pose.pose.orientation.x))
+        self.le_editori_y.setText(str(self.current_pose.pose.orientation.y))
+        self.le_editori_z.setText(str(self.current_pose.pose.orientation.z))
+        self.le_editori_w.setText(str(self.current_pose.pose.orientation.w))

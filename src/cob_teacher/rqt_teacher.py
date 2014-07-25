@@ -13,8 +13,9 @@ from teachers import *
 from YamlManager import *
 
 
-availableTeachers = [StringInputTeacher, StdStringInputTeacher, FloatInputTeacher, PoseInputTeacher, 
-                     PoseTouchupTeacher, PoseTeachInHandleTeacher]
+availableTeachers = [#StringInputTeacher, StdStringInputTeacher, FloatInputTeacher, PoseInputTeacher, 
+                     #PoseTouchupTeacher, PoseTeachInHandleTeacher, 
+                     PalettePoseTeacher]
 
 class cob_teacher_plugin(Plugin):
 
@@ -63,10 +64,20 @@ class cob_teacher_plugin(Plugin):
 
     def getFieldWidget(self, field):
         group = QtGui.QGroupBox()
-        group.setTitle("select teacher for: '"+ field + "'")
-        field_layout = QtGui.QVBoxLayout()
-        group.setLayout(field_layout)
+        # set title
         teachers_found = self.findTeachers(field)
+        if(len(teachers_found) > 1):
+            group.setTitle("select teacher for: '"+ field + "'")
+        elif(len(teachers_found) == 0):
+            not_found_widget = QtGui.QLabel("No Plugin found for "+ self.ym.getType(field))
+            field_layout.addWidget(not_found_widget)
+        else:
+            group.setTitle(teachers_found[0]().getName())
+        
+        # set layout     
+        field_layout = QtGui.QVBoxLayout()
+        group.setLayout(field_layout)        
+        # choose teacher
         if(len(teachers_found) > 1):
             print "Several plugins were found for fieldtype " + self.ym.getType(field)
             combo = QtGui.QComboBox()
