@@ -13,7 +13,8 @@ from tf.msg import tfMessage
 from std_msgs.msg import String 
 from geometry_msgs.msg import PoseStamped
 
-
+import numpy as np
+import copy
 
 from qt_gui.plugin import Plugin
 from python_qt_binding import loadUi
@@ -435,6 +436,8 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
         p.pose.orientation.y = float(self.le_editori_y.text())
         p.pose.orientation.z = float(self.le_editori_z.text())
         p.pose.orientation.w = float(self.le_editori_w.text())
+
+        return p;
         
     def getRQTWidget(self, name, current_data):    
         
@@ -558,9 +561,7 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
 class PalettePoseTeacher(TeacherPlugin):
     current_iterate = 0
     current_pose = PoseStamped()
-    first_pose = PoseStamped()
-    second_pose = PoseStamped()
-    third_pose = PoseStamped()
+    
     def __init__(self):
         # start listener for pose 
         #self.listener = rospy.Subscriber('MagBot/teach_in_handle_pose', PoseStamped, self.callback)
@@ -579,18 +580,49 @@ class PalettePoseTeacher(TeacherPlugin):
         pass
 
     def getRQTData(self, name):
-        p = PoseStamped()
-        p.header.frame_id = str(self.le_edit_frame_id.text())
+        first_pose = PoseStamped()
+        second_pose = PoseStamped()
+        third_pose = PoseStamped()
 
-        p.pose.position.x = float(self.le_editx.text())
-        p.pose.position.y = float(self.le_edity.text())
-        p.pose.position.z = float(self.le_editz.text())
+        ################ First Pose ##################################
+        first_pose.header.frame_id = str(self.le_edit_frame_id_first.text())
 
-        p.pose.orientation.x = float(self.le_editori_x.text())
-        p.pose.orientation.y = float(self.le_editori_y.text())
-        p.pose.orientation.z = float(self.le_editori_z.text())
-        p.pose.orientation.w = float(self.le_editori_w.text())
+        first_pose.pose.position.x = float(self.le_editx_first.text())
+        first_pose.pose.position.y = float(self.le_edity_first.text())
+        first_pose.pose.position.z = float(self.le_editz_first.text())
+
+        first_pose.pose.orientation.x = float(self.le_editori_x_first.text())
+        first_pose.pose.orientation.y = float(self.le_editori_y_first.text())
+        first_pose.pose.orientation.z = float(self.le_editori_z_first.text())
+        first_pose.pose.orientation.w = float(self.le_editori_w_first.text())
+
+        ################ Second Pose ##################################
+        second_pose.header.frame_id = str(self.le_edit_frame_id_second.text())
+
+        second_pose.pose.position.x = float(self.le_editx_second.text())
+        second_pose.pose.position.y = float(self.le_edity_second.text())
+        second_pose.pose.position.z = float(self.le_editz_second.text())
+
+        second_pose.pose.orientation.x = float(self.le_editori_x_second.text())
+        second_pose.pose.orientation.y = float(self.le_editori_y_second.text())
+        second_pose.pose.orientation.z = float(self.le_editori_z_second.text())
+        second_pose.pose.orientation.w = float(self.le_editori_w_second.text())
         
+        ################ Third Pose ##################################
+        third_pose.header.frame_id = str(self.le_edit_frame_id_third.text())
+
+        third_pose.pose.position.x = float(self.le_editx_third.text())
+        third_pose.pose.position.y = float(self.le_edity_third.text())
+        third_pose.pose.position.z = float(self.le_editz_third.text())
+
+        third_pose.pose.orientation.x = float(self.le_editori_x_third.text())
+        third_pose.pose.orientation.y = float(self.le_editori_y_third.text())
+        third_pose.pose.orientation.z = float(self.le_editori_z_third.text())
+        third_pose.pose.orientation.w = float(self.le_editori_w_third.text())
+
+        ################ Compute Pallete Pose ##################################
+        return self.getPaletteFrameFromThreePoses(first_pose, second_pose, third_pose)
+
     def getRQTWidget(self, name, current_data):    
         
         row_start = 0 
@@ -603,7 +635,7 @@ class PalettePoseTeacher(TeacherPlugin):
         self.le_label_title = QtGui.QLabel("Teaching Palette Poses")
         grid_layout.addWidget(self.le_label_title, row_start + 1,0)
 ##############################################################################################
-#Teaching First Pose:
+#First Pose Widget:
 ##############################################################################################
         clicked = QtCore.pyqtSignal()
 
@@ -687,7 +719,7 @@ class PalettePoseTeacher(TeacherPlugin):
         grid_layout.addWidget(self.le_editori_w_first, row_start + 10,column_start + 1)
 
 ##############################################################################################
-#Teaching Second Pose:
+#Second Pose Widget:
 ##############################################################################################
         column_start = 2
         self.le_teach_button_second = QtGui.QPushButton("Teach Second Pose")
@@ -770,7 +802,7 @@ class PalettePoseTeacher(TeacherPlugin):
         grid_layout.addWidget(self.le_editori_w_second, row_start + 10,column_start + 1)
           
 ##############################################################################################
-#Teaching Third Pose:
+#Third Pose Widget:
 ##############################################################################################
         column_start = 4
         self.le_teach_button_third = QtGui.QPushButton("Teach Third Pose")
@@ -972,4 +1004,53 @@ class PalettePoseTeacher(TeacherPlugin):
             self.le_editori_y_third.setText(str(""))
             self.le_editori_z_third.setText(str(""))
             self.le_editori_w_third.setText(str(""))
+
+    def getPaletteFrameFromThreePoses(self, poseStamped_first, poseStamped_mid, poseStamped_last):
+
+        def normalize(v):
+            norm=np.linalg.norm(v)
+            if norm==0: 
+               return v
+            return v/norm
+
+        if not (poseStamped_first.header.frame_id is poseStamped_mid.header.frame_id and
+                poseStamped_mid.header.frame_id is poseStamped_last.header.frame_id and
+                poseStamped_last.header.frame_id is poseStamped_first.header.frame_id):
+            return "The world is ending! We all gonna die!"
+        posePallet = copy.deepcopy(poseStamped_first)
+
+        pose_first = np.array([poseStamped_first.pose.position.x, poseStamped_first.pose.position.y, poseStamped_first.pose.position.z])
+        pose_mid = np.array([poseStamped_mid.pose.position.x, poseStamped_mid.pose.position.y, poseStamped_mid.pose.position.z])
+        pose_last = np.array([poseStamped_last.pose.position.x, poseStamped_last.pose.position.y, poseStamped_last.pose.position.z])
+
+        x_axis = normalize(pose_mid - pose_first)
+        rospy.logdebug("x_axis: %s", x_axis)
+
+        intersection_point = pose_first + np.dot((pose_last-pose_first), x_axis)*x_axis
+        
+        width = np.linalg.norm(pose_first - intersection_point)
+        depth = np.linalg.norm(pose_last - intersection_point)
+
+        y_axis = normalize(pose_last - intersection_point)
+        rospy.logdebug("y_axis: %s", y_axis)
+
+        z_axis = np.cross(x_axis, y_axis)
+        z_axis = normalize(z_axis)
+        rospy.logdebug("z_axis: %s", z_axis)
+
+        rot_mat = np.identity(4)
+        rot_mat[0][0:3]=x_axis[:]
+        rot_mat[1][0:3]=y_axis[:]
+        rot_mat[2][0:3]=z_axis[:]
+        rot_mat = rot_mat.transpose()
+
+        rospy.logdebug("Rotation Matrix: \n %s", rot_mat)
+        ori = tf.transformations.quaternion_from_matrix(rot_mat)
+        posePallet.pose.orientation.x = ori[0]
+        posePallet.pose.orientation.y = ori[1]
+        posePallet.pose.orientation.z = ori[2]
+        posePallet.pose.orientation.w = ori[3]
+
+        #return (posePallet, width, depth)
+        return posePallet
 
