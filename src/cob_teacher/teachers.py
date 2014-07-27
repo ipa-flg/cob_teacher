@@ -918,9 +918,8 @@ class PalettePoseTeacher(TeacherPlugin):
         # get curren handle pose in "base_link": ############################################
         self.lr = tf.TransformListener()
         try:
-            now = rospy.Time.now()
-            self.lr.waitForTransform("teach_in_handle", "base_link", now, rospy.Duration(0.5))
-            (trans,rot) = self.lr.lookupTransform("teach_in_handle", "base_link", now)
+            self.lr.waitForTransform("base_link", "teach_in_handle", rospy.Time(0), rospy.Duration(0.5))
+            (trans,rot) = self.lr.lookupTransform("teach_in_handle", "base_link", rospy.Time(0))
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             pass
         
@@ -1075,6 +1074,7 @@ class PalettePoseTeacher(TeacherPlugin):
 
         rospy.logdebug("Rotation Matrix: \n %s", rot_mat)
         ori = tf.transformations.quaternion_from_matrix(rot_mat)
+    
         posePallet.pose.orientation.x = ori[0]
         posePallet.pose.orientation.y = ori[1]
         posePallet.pose.orientation.z = ori[2]
