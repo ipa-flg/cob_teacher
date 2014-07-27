@@ -967,7 +967,7 @@ class PalettePoseTeacher(TeacherPlugin):
                 self.le_editori_y_third.setText(str(self.current_pose.pose.orientation.y))
                 self.le_editori_z_third.setText(str(self.current_pose.pose.orientation.z))
                 self.le_editori_w_third.setText(str(self.current_pose.pose.orientation.w))
-                self.current_iterate = 3
+                self.current_iterate = 1
         else:
             if(current_pose_iter == 1):
                 self.le_edit_frame_id_first.setText(str( self.current_pose.header.frame_id))
