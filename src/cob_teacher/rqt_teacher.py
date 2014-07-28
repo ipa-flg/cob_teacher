@@ -102,7 +102,7 @@ class cob_teacher_plugin(Plugin):
     def saveValues(self):
         for teacher in self.current_teacher:
             if(teacher["teacher"] != None):
-                print "Updating:", teacher["name"]
+                #print "Updating:", teacher["name"]
                 self.ym.updateField(teacher["name"], teacher["teacher"].getRQTData(teacher["name"]))
 
         print "saving values"

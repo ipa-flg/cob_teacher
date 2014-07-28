@@ -594,6 +594,7 @@ class PalettePoseTeacher(TeacherPlugin):
         first_pose = PoseStamped()
         second_pose = PoseStamped()
         third_pose = PoseStamped()
+        result = PoseStamped()
 
         ################ First Pose ##################################
         first_pose.header.frame_id = str(self.le_edit_frame_id_first.text())
@@ -632,7 +633,9 @@ class PalettePoseTeacher(TeacherPlugin):
         third_pose.pose.orientation.w = float(self.le_editori_w_third.text())
 
         ################ Compute Pallete Pose ##################################
-        return self.getPaletteFrameFromThreePoses(first_pose, second_pose, third_pose)
+        result = self.getPaletteFrameFromThreePoses(first_pose, second_pose, third_pose)
+        print result
+        return result
 
     def getRQTWidget(self, name, current_data):    
         
@@ -1041,9 +1044,9 @@ class PalettePoseTeacher(TeacherPlugin):
                return v
             return v/norm
 
-        if not (poseStamped_first.header.frame_id is poseStamped_mid.header.frame_id and
-                poseStamped_mid.header.frame_id is poseStamped_last.header.frame_id and
-                poseStamped_last.header.frame_id is poseStamped_first.header.frame_id):
+        if (not (poseStamped_first.header.frame_id == poseStamped_mid.header.frame_id and
+                poseStamped_mid.header.frame_id == poseStamped_last.header.frame_id and
+                poseStamped_last.header.frame_id == poseStamped_first.header.frame_id)):
             return "The world is ending! We all gonna die!"
         posePallet = copy.deepcopy(poseStamped_first)
 
