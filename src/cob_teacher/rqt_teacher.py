@@ -107,6 +107,7 @@ class cob_teacher_plugin(Plugin):
 
         print "saving values"
         self.ym.writeFile()
+        print "saved!"
 
     def combo_chosen(self, text):
         sender = self.sender()

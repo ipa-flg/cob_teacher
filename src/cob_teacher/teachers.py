@@ -561,8 +561,11 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
 
 
 class PalettePoseTeacher(TeacherPlugin):
-    current_iterate = 0
     current_pose = PoseStamped()
+    first_pose = PoseStamped()
+    second_pose = PoseStamped()
+    third_pose = PoseStamped()
+    current_iterate = 0
     ps_move_hold_value = 0
     
     def __init__(self):
@@ -591,50 +594,13 @@ class PalettePoseTeacher(TeacherPlugin):
         pass
 
     def getRQTData(self, name):
-        first_pose = PoseStamped()
-        second_pose = PoseStamped()
-        third_pose = PoseStamped()
         result = PoseStamped()
 
-        ################ First Pose ##################################
-        first_pose.header.frame_id = str(self.le_edit_frame_id_first.text())
-
-        first_pose.pose.position.x = float(self.le_editx_first.text())
-        first_pose.pose.position.y = float(self.le_edity_first.text())
-        first_pose.pose.position.z = float(self.le_editz_first.text())
-
-        first_pose.pose.orientation.x = float(self.le_editori_x_first.text())
-        first_pose.pose.orientation.y = float(self.le_editori_y_first.text())
-        first_pose.pose.orientation.z = float(self.le_editori_z_first.text())
-        first_pose.pose.orientation.w = float(self.le_editori_w_first.text())
-
-        ################ Second Pose ##################################
-        second_pose.header.frame_id = str(self.le_edit_frame_id_second.text())
-
-        second_pose.pose.position.x = float(self.le_editx_second.text())
-        second_pose.pose.position.y = float(self.le_edity_second.text())
-        second_pose.pose.position.z = float(self.le_editz_second.text())
-
-        second_pose.pose.orientation.x = float(self.le_editori_x_second.text())
-        second_pose.pose.orientation.y = float(self.le_editori_y_second.text())
-        second_pose.pose.orientation.z = float(self.le_editori_z_second.text())
-        second_pose.pose.orientation.w = float(self.le_editori_w_second.text())
-        
-        ################ Third Pose ##################################
-        third_pose.header.frame_id = str(self.le_edit_frame_id_third.text())
-
-        third_pose.pose.position.x = float(self.le_editx_third.text())
-        third_pose.pose.position.y = float(self.le_edity_third.text())
-        third_pose.pose.position.z = float(self.le_editz_third.text())
-
-        third_pose.pose.orientation.x = float(self.le_editori_x_third.text())
-        third_pose.pose.orientation.y = float(self.le_editori_y_third.text())
-        third_pose.pose.orientation.z = float(self.le_editori_z_third.text())
-        third_pose.pose.orientation.w = float(self.le_editori_w_third.text())
-
         ################ Compute Pallete Pose ##################################
-        result = self.getPaletteFrameFromThreePoses(first_pose, second_pose, third_pose)
+        result = self.getPaletteFrameFromThreePoses(self.first_pose, self.second_pose, self.third_pose)
+        print "Palette Frame: "
         print result
+        ########################
         return result
 
     def getRQTWidget(self, name, current_data):    
@@ -696,41 +662,41 @@ class PalettePoseTeacher(TeacherPlugin):
 
         [x,y,z,w] = current_data['pose']['orientation'].values()
 
-        self.le_labelori_x_first = QtGui.QLabel("Orientation X:")
-        self.le_editori_x_first = QtGui.QLineEdit()
-        self.le_editori_x_first.setObjectName(name)
-        self.le_editori_x_first.setReadOnly(True)
-        #self.le_editori_x.setText(str(x))
-        self.le_editori_x_first.setText(str(""))
-        grid_layout.addWidget(self.le_labelori_x_first, row_start + 7, column_start + 0)
-        grid_layout.addWidget(self.le_editori_x_first, row_start + 7, column_start + 1)
+        #self.le_labelori_x_first = QtGui.QLabel("Orientation X:")
+        #self.le_editori_x_first = QtGui.QLineEdit()
+        #self.le_editori_x_first.setObjectName(name)
+        #self.le_editori_x_first.setReadOnly(True)
+        ##self.le_editori_x.setText(str(x))
+        #self.le_editori_x_first.setText(str(""))
+        #grid_layout.addWidget(self.le_labelori_x_first, row_start + 7, column_start + 0)
+        #grid_layout.addWidget(self.le_editori_x_first, row_start + 7, column_start + 1)
 
-        self.le_labelori_y_first = QtGui.QLabel("Orientation Y:")
-        self.le_editori_y_first = QtGui.QLineEdit()
-        self.le_editori_y_first.setObjectName(name)
-        #self.le_editori_y.setText(str(y))
-        self.le_editori_y_first.setText(str(""))
-        self.le_editori_y_first.setReadOnly(True)
-        grid_layout.addWidget(self.le_labelori_y_first, row_start + 8, column_start + 0)
-        grid_layout.addWidget(self.le_editori_y_first, row_start + 8, column_start + 1)
+        #self.le_labelori_y_first = QtGui.QLabel("Orientation Y:")
+        #self.le_editori_y_first = QtGui.QLineEdit()
+        #self.le_editori_y_first.setObjectName(name)
+        ##self.le_editori_y.setText(str(y))
+        #self.le_editori_y_first.setText(str(""))
+        #self.le_editori_y_first.setReadOnly(True)
+        #grid_layout.addWidget(self.le_labelori_y_first, row_start + 8, column_start + 0)
+        #grid_layout.addWidget(self.le_editori_y_first, row_start + 8, column_start + 1)
 
-        self.le_labelori_z_first = QtGui.QLabel("Orientation Z:")
-        self.le_editori_z_first = QtGui.QLineEdit()
-        self.le_editori_z_first.setObjectName(name)
-        #self.le_editori_z.setText(str(z))
-        self.le_editori_z_first.setText(str(""))
-        self.le_editori_z_first.setReadOnly(True)
-        grid_layout.addWidget(self.le_labelori_z_first, row_start + 9,column_start + 0)
-        grid_layout.addWidget(self.le_editori_z_first, row_start + 9,column_start + 1)
+        #self.le_labelori_z_first = QtGui.QLabel("Orientation Z:")
+        #self.le_editori_z_first = QtGui.QLineEdit()
+        #self.le_editori_z_first.setObjectName(name)
+        ##self.le_editori_z.setText(str(z))
+        #self.le_editori_z_first.setText(str(""))
+        #self.le_editori_z_first.setReadOnly(True)
+        #grid_layout.addWidget(self.le_labelori_z_first, row_start + 9,column_start + 0)
+        #grid_layout.addWidget(self.le_editori_z_first, row_start + 9,column_start + 1)
 
-        self.le_labelori_w_first = QtGui.QLabel("Orientation W:")
-        self.le_editori_w_first = QtGui.QLineEdit()
-        self.le_editori_w_first.setObjectName(name)
-        #self.le_editori_w.setText(str(w))
-        self.le_editori_w_first.setText(str(""))
-        self.le_editori_w_first.setReadOnly(True)
-        grid_layout.addWidget(self.le_labelori_w_first, row_start + 10, column_start + 0)
-        grid_layout.addWidget(self.le_editori_w_first, row_start + 10,column_start + 1)
+        #self.le_labelori_w_first = QtGui.QLabel("Orientation W:")
+        #self.le_editori_w_first = QtGui.QLineEdit()
+        #self.le_editori_w_first.setObjectName(name)
+        ##self.le_editori_w.setText(str(w))
+        #self.le_editori_w_first.setText(str(""))
+        #self.le_editori_w_first.setReadOnly(True)
+        #grid_layout.addWidget(self.le_labelori_w_first, row_start + 10, column_start + 0)
+        #grid_layout.addWidget(self.le_editori_w_first, row_start + 10,column_start + 1)
 
 ##############################################################################################
 #Second Pose Widget:
@@ -779,41 +745,41 @@ class PalettePoseTeacher(TeacherPlugin):
 
         [x,y,z,w] = current_data['pose']['orientation'].values()
 
-        self.le_labelori_x_second = QtGui.QLabel("Orientation X:")
-        self.le_editori_x_second = QtGui.QLineEdit()
-        self.le_editori_x_second.setObjectName(name)
-        self.le_editori_x_second.setReadOnly(True)
-        #self.le_editori_x.setText(str(x))
-        self.le_editori_x_second.setText(str(""))
-        grid_layout.addWidget(self.le_labelori_x_second, row_start + 7, column_start + 0)
-        grid_layout.addWidget(self.le_editori_x_second, row_start + 7, column_start + 1)
+        #self.le_labelori_x_second = QtGui.QLabel("Orientation X:")
+        #self.le_editori_x_second = QtGui.QLineEdit()
+        #self.le_editori_x_second.setObjectName(name)
+        #self.le_editori_x_second.setReadOnly(True)
+        ##self.le_editori_x.setText(str(x))
+        #self.le_editori_x_second.setText(str(""))
+        #grid_layout.addWidget(self.le_labelori_x_second, row_start + 7, column_start + 0)
+        #grid_layout.addWidget(self.le_editori_x_second, row_start + 7, column_start + 1)
 
-        self.le_labelori_y_second = QtGui.QLabel("Orientation Y:")
-        self.le_editori_y_second = QtGui.QLineEdit()
-        self.le_editori_y_second.setObjectName(name)
-        #self.le_editori_y.setText(str(y))
-        self.le_editori_y_second.setText(str(""))
-        self.le_editori_y_second.setReadOnly(True)
-        grid_layout.addWidget(self.le_labelori_y_second, row_start + 8, column_start + 0)
-        grid_layout.addWidget(self.le_editori_y_second, row_start + 8, column_start + 1)
+        #self.le_labelori_y_second = QtGui.QLabel("Orientation Y:")
+        #self.le_editori_y_second = QtGui.QLineEdit()
+        #self.le_editori_y_second.setObjectName(name)
+        ##self.le_editori_y.setText(str(y))
+        #self.le_editori_y_second.setText(str(""))
+        #self.le_editori_y_second.setReadOnly(True)
+        #grid_layout.addWidget(self.le_labelori_y_second, row_start + 8, column_start + 0)
+        #grid_layout.addWidget(self.le_editori_y_second, row_start + 8, column_start + 1)
 
-        self.le_labelori_z_second = QtGui.QLabel("Orientation Z:")
-        self.le_editori_z_second = QtGui.QLineEdit()
-        self.le_editori_z_second.setObjectName(name)
-        #self.le_editori_z.setText(str(z))
-        self.le_editori_z_second.setText(str(""))
-        self.le_editori_z_second.setReadOnly(True)
-        grid_layout.addWidget(self.le_labelori_z_second, row_start + 9,column_start + 0)
-        grid_layout.addWidget(self.le_editori_z_second, row_start + 9,column_start + 1)
+        #self.le_labelori_z_second = QtGui.QLabel("Orientation Z:")
+        #self.le_editori_z_second = QtGui.QLineEdit()
+        #self.le_editori_z_second.setObjectName(name)
+        ##self.le_editori_z.setText(str(z))
+        #self.le_editori_z_second.setText(str(""))
+        #self.le_editori_z_second.setReadOnly(True)
+        #grid_layout.addWidget(self.le_labelori_z_second, row_start + 9,column_start + 0)
+        #grid_layout.addWidget(self.le_editori_z_second, row_start + 9,column_start + 1)
 
-        self.le_labelori_w_second = QtGui.QLabel("Orientation W:")
-        self.le_editori_w_second = QtGui.QLineEdit()
-        self.le_editori_w_second.setObjectName(name)
-        #self.le_editori_w.setText(str(w))
-        self.le_editori_w_second.setText(str(""))
-        self.le_editori_w_second.setReadOnly(True)
-        grid_layout.addWidget(self.le_labelori_w_second, row_start + 10, column_start + 0)
-        grid_layout.addWidget(self.le_editori_w_second, row_start + 10,column_start + 1)
+        #self.le_labelori_w_second = QtGui.QLabel("Orientation W:")
+        #self.le_editori_w_second = QtGui.QLineEdit()
+        #self.le_editori_w_second.setObjectName(name)
+        ##self.le_editori_w.setText(str(w))
+        #self.le_editori_w_second.setText(str(""))
+        #self.le_editori_w_second.setReadOnly(True)
+        #grid_layout.addWidget(self.le_labelori_w_second, row_start + 10, column_start + 0)
+        #grid_layout.addWidget(self.le_editori_w_second, row_start + 10,column_start + 1)
           
 ##############################################################################################
 #Third Pose Widget:
@@ -862,41 +828,41 @@ class PalettePoseTeacher(TeacherPlugin):
 
         [x,y,z,w] = current_data['pose']['orientation'].values()
 
-        self.le_labelori_x_third = QtGui.QLabel("Orientation X:")
-        self.le_editori_x_third = QtGui.QLineEdit()
-        self.le_editori_x_third.setObjectName(name)
-        self.le_editori_x_third.setReadOnly(True)
-        #self.le_editori_x.setText(str(x))
-        self.le_editori_x_third.setText(str(""))
-        grid_layout.addWidget(self.le_labelori_x_third, row_start + 7, column_start + 0)
-        grid_layout.addWidget(self.le_editori_x_third, row_start + 7, column_start + 1)
+        #self.le_labelori_x_third = QtGui.QLabel("Orientation X:")
+        #self.le_editori_x_third = QtGui.QLineEdit()
+        #self.le_editori_x_third.setObjectName(name)
+        #self.le_editori_x_third.setReadOnly(True)
+        ##self.le_editori_x.setText(str(x))
+        #self.le_editori_x_third.setText(str(""))
+        #grid_layout.addWidget(self.le_labelori_x_third, row_start + 7, column_start + 0)
+        #grid_layout.addWidget(self.le_editori_x_third, row_start + 7, column_start + 1)
 
-        self.le_labelori_y_third = QtGui.QLabel("Orientation Y:")
-        self.le_editori_y_third = QtGui.QLineEdit()
-        self.le_editori_y_third.setObjectName(name)
-        #self.le_editori_y.setText(str(y))
-        self.le_editori_y_third.setText(str(""))
-        self.le_editori_y_third.setReadOnly(True)
-        grid_layout.addWidget(self.le_labelori_y_third, row_start + 8, column_start + 0)
-        grid_layout.addWidget(self.le_editori_y_third, row_start + 8, column_start + 1)
+        #self.le_labelori_y_third = QtGui.QLabel("Orientation Y:")
+        #self.le_editori_y_third = QtGui.QLineEdit()
+        #self.le_editori_y_third.setObjectName(name)
+        ##self.le_editori_y.setText(str(y))
+        #self.le_editori_y_third.setText(str(""))
+        #self.le_editori_y_third.setReadOnly(True)
+        #grid_layout.addWidget(self.le_labelori_y_third, row_start + 8, column_start + 0)
+        #grid_layout.addWidget(self.le_editori_y_third, row_start + 8, column_start + 1)
 
-        self.le_labelori_z_third = QtGui.QLabel("Orientation Z:")
-        self.le_editori_z_third = QtGui.QLineEdit()
-        self.le_editori_z_third.setObjectName(name)
-        #self.le_editori_z.setText(str(z))
-        self.le_editori_z_third.setText(str(""))
-        self.le_editori_z_third.setReadOnly(True)
-        grid_layout.addWidget(self.le_labelori_z_third, row_start + 9,column_start + 0)
-        grid_layout.addWidget(self.le_editori_z_third, row_start + 9,column_start + 1)
+        #self.le_labelori_z_third = QtGui.QLabel("Orientation Z:")
+        #self.le_editori_z_third = QtGui.QLineEdit()
+        #self.le_editori_z_third.setObjectName(name)
+        ##self.le_editori_z.setText(str(z))
+        #self.le_editori_z_third.setText(str(""))
+        #self.le_editori_z_third.setReadOnly(True)
+        #grid_layout.addWidget(self.le_labelori_z_third, row_start + 9,column_start + 0)
+        #grid_layout.addWidget(self.le_editori_z_third, row_start + 9,column_start + 1)
 
-        self.le_labelori_w_third = QtGui.QLabel("Orientation W:")
-        self.le_editori_w_third = QtGui.QLineEdit()
-        self.le_editori_w_third.setObjectName(name)
-        #self.le_editori_w.setText(str(w))
-        self.le_editori_w_third.setText(str(""))
-        self.le_editori_w_third.setReadOnly(True)
-        grid_layout.addWidget(self.le_labelori_w_third, row_start + 10, column_start + 0)
-        grid_layout.addWidget(self.le_editori_w_third, row_start + 10,column_start + 1)
+        #self.le_labelori_w_third = QtGui.QLabel("Orientation W:")
+        #self.le_editori_w_third = QtGui.QLineEdit()
+        #self.le_editori_w_third.setObjectName(name)
+        ##self.le_editori_w.setText(str(w))
+        #self.le_editori_w_third.setText(str(""))
+        #self.le_editori_w_third.setReadOnly(True)
+        #grid_layout.addWidget(self.le_labelori_w_third, row_start + 10, column_start + 0)
+        #grid_layout.addWidget(self.le_editori_w_third, row_start + 10,column_start + 1)
 
 ##############################################################################################
 #Clear buttons:
@@ -943,33 +909,61 @@ class PalettePoseTeacher(TeacherPlugin):
                 self.le_edity_first.setText(str( self.current_pose.pose.position.y))
                 self.le_editz_first.setText(str( self.current_pose.pose.position.z))
 
-                self.le_editori_x_first.setText(str(self.current_pose.pose.orientation.x))
-                self.le_editori_y_first.setText(str(self.current_pose.pose.orientation.y))
-                self.le_editori_z_first.setText(str(self.current_pose.pose.orientation.z))
-                self.le_editori_w_first.setText(str(self.current_pose.pose.orientation.w))
+                #self.le_editori_x_first.setText(str(self.current_pose.pose.orientation.x))
+                #self.le_editori_y_first.setText(str(self.current_pose.pose.orientation.y))
+                #self.le_editori_z_first.setText(str(self.current_pose.pose.orientation.z))
+                #self.le_editori_w_first.setText(str(self.current_pose.pose.orientation.w))
                 self.current_iterate = 2
+            
+                self.first_pose.header.frame_id = self.current_pose.header.frame_id
+                self.first_pose.pose.position.x = self.current_pose.pose.position.x
+                self.first_pose.pose.position.y = self.current_pose.pose.position.y
+                self.first_pose.pose.position.z = self.current_pose.pose.position.z
+                self.first_pose.pose.orientation.x = self.current_pose.pose.orientation.x
+                self.first_pose.pose.orientation.y = self.current_pose.pose.orientation.y
+                self.first_pose.pose.orientation.z = self.current_pose.pose.orientation.z
+                self.first_pose.pose.orientation.w = self.current_pose.pose.orientation.w
+
             elif(self.current_iterate == 2):
                 self.le_edit_frame_id_second.setText(str( self.current_pose.header.frame_id))
                 self.le_editx_second.setText(str( self.current_pose.pose.position.x))
                 self.le_edity_second.setText(str( self.current_pose.pose.position.y))
                 self.le_editz_second.setText(str( self.current_pose.pose.position.z))
 
-                self.le_editori_x_second.setText(str(self.current_pose.pose.orientation.x))
-                self.le_editori_y_second.setText(str(self.current_pose.pose.orientation.y))
-                self.le_editori_z_second.setText(str(self.current_pose.pose.orientation.z))
-                self.le_editori_w_second.setText(str(self.current_pose.pose.orientation.w))
+                #self.le_editori_x_second.setText(str(self.current_pose.pose.orientation.x))
+                #self.le_editori_y_second.setText(str(self.current_pose.pose.orientation.y))
+                #self.le_editori_z_second.setText(str(self.current_pose.pose.orientation.z))
+                #self.le_editori_w_second.setText(str(self.current_pose.pose.orientation.w))
                 self.current_iterate = 3
+
+                self.second_pose.header.frame_id = self.current_pose.header.frame_id
+                self.second_pose.pose.position.x = self.current_pose.pose.position.x
+                self.second_pose.pose.position.y = self.current_pose.pose.position.y
+                self.second_pose.pose.position.z = self.current_pose.pose.position.z
+                self.second_pose.pose.orientation.x = self.current_pose.pose.orientation.x
+                self.second_pose.pose.orientation.y = self.current_pose.pose.orientation.y
+                self.second_pose.pose.orientation.z = self.current_pose.pose.orientation.z
+                self.second_pose.pose.orientation.w = self.current_pose.pose.orientation.w
             else:
                 self.le_edit_frame_id_third.setText(str( self.current_pose.header.frame_id))
                 self.le_editx_third.setText(str( self.current_pose.pose.position.x))
                 self.le_edity_third.setText(str( self.current_pose.pose.position.y))
                 self.le_editz_third.setText(str( self.current_pose.pose.position.z))
 
-                self.le_editori_x_third.setText(str(self.current_pose.pose.orientation.x))
-                self.le_editori_y_third.setText(str(self.current_pose.pose.orientation.y))
-                self.le_editori_z_third.setText(str(self.current_pose.pose.orientation.z))
-                self.le_editori_w_third.setText(str(self.current_pose.pose.orientation.w))
+                #self.le_editori_x_third.setText(str(self.current_pose.pose.orientation.x))
+                #self.le_editori_y_third.setText(str(self.current_pose.pose.orientation.y))
+                #self.le_editori_z_third.setText(str(self.current_pose.pose.orientation.z))
+                #self.le_editori_w_third.setText(str(self.current_pose.pose.orientation.w))
                 self.current_iterate = 1
+
+                self.third_pose.header.frame_id = self.current_pose.header.frame_id
+                self.third_pose.pose.position.x = self.current_pose.pose.position.x
+                self.third_pose.pose.position.y = self.current_pose.pose.position.y
+                self.third_pose.pose.position.z = self.current_pose.pose.position.z
+                self.third_pose.pose.orientation.x = self.current_pose.pose.orientation.x
+                self.third_pose.pose.orientation.y = self.current_pose.pose.orientation.y
+                self.third_pose.pose.orientation.z = self.current_pose.pose.orientation.z
+                self.third_pose.pose.orientation.w = self.current_pose.pose.orientation.w
         else:
             if(current_pose_iter == 1):
                 self.le_edit_frame_id_first.setText(str( self.current_pose.header.frame_id))
@@ -977,10 +971,19 @@ class PalettePoseTeacher(TeacherPlugin):
                 self.le_edity_first.setText(str( self.current_pose.pose.position.y))
                 self.le_editz_first.setText(str( self.current_pose.pose.position.z))
 
-                self.le_editori_x_first.setText(str(self.current_pose.pose.orientation.x))
-                self.le_editori_y_first.setText(str(self.current_pose.pose.orientation.y))
-                self.le_editori_z_first.setText(str(self.current_pose.pose.orientation.z))
-                self.le_editori_w_first.setText(str(self.current_pose.pose.orientation.w))
+                #self.le_editori_x_first.setText(str(self.current_pose.pose.orientation.x))
+                #self.le_editori_y_first.setText(str(self.current_pose.pose.orientation.y))
+                #self.le_editori_z_first.setText(str(self.current_pose.pose.orientation.z))
+                #self.le_editori_w_first.setText(str(self.current_pose.pose.orientation.w))
+
+                self.first_pose.header.frame_id = self.current_pose.header.frame_id
+                self.first_pose.pose.position.x = self.current_pose.pose.position.x
+                self.first_pose.pose.position.y = self.current_pose.pose.position.y
+                self.first_pose.pose.position.z = self.current_pose.pose.position.z
+                self.first_pose.pose.orientation.x = self.current_pose.pose.orientation.x
+                self.first_pose.pose.orientation.y = self.current_pose.pose.orientation.y
+                self.first_pose.pose.orientation.z = self.current_pose.pose.orientation.z
+                self.first_pose.pose.orientation.w = self.current_pose.pose.orientation.w
 
             elif(current_pose_iter == 2):
                 self.le_edit_frame_id_second.setText(str( self.current_pose.header.frame_id))
@@ -988,10 +991,19 @@ class PalettePoseTeacher(TeacherPlugin):
                 self.le_edity_second.setText(str( self.current_pose.pose.position.y))
                 self.le_editz_second.setText(str( self.current_pose.pose.position.z))
 
-                self.le_editori_x_second.setText(str(self.current_pose.pose.orientation.x))
-                self.le_editori_y_second.setText(str(self.current_pose.pose.orientation.y))
-                self.le_editori_z_second.setText(str(self.current_pose.pose.orientation.z))
-                self.le_editori_w_second.setText(str(self.current_pose.pose.orientation.w))
+                #self.le_editori_x_second.setText(str(self.current_pose.pose.orientation.x))
+                #self.le_editori_y_second.setText(str(self.current_pose.pose.orientation.y))
+                #self.le_editori_z_second.setText(str(self.current_pose.pose.orientation.z))
+                #self.le_editori_w_second.setText(str(self.current_pose.pose.orientation.w))
+
+                self.second_pose.header.frame_id = self.current_pose.header.frame_id
+                self.second_pose.pose.position.x = self.current_pose.pose.position.x
+                self.second_pose.pose.position.y = self.current_pose.pose.position.y
+                self.second_pose.pose.position.z = self.current_pose.pose.position.z
+                self.second_pose.pose.orientation.x = self.current_pose.pose.orientation.x
+                self.second_pose.pose.orientation.y = self.current_pose.pose.orientation.y
+                self.second_pose.pose.orientation.z = self.current_pose.pose.orientation.z
+                self.second_pose.pose.orientation.w = self.current_pose.pose.orientation.w
 
             elif(current_pose_iter == 3):
                 self.le_edit_frame_id_third.setText(str( self.current_pose.header.frame_id))
@@ -999,10 +1011,19 @@ class PalettePoseTeacher(TeacherPlugin):
                 self.le_edity_third.setText(str( self.current_pose.pose.position.y))
                 self.le_editz_third.setText(str( self.current_pose.pose.position.z))
 
-                self.le_editori_x_third.setText(str(self.current_pose.pose.orientation.x))
-                self.le_editori_y_third.setText(str(self.current_pose.pose.orientation.y))
-                self.le_editori_z_third.setText(str(self.current_pose.pose.orientation.z))
-                self.le_editori_w_third.setText(str(self.current_pose.pose.orientation.w))
+                #self.le_editori_x_third.setText(str(self.current_pose.pose.orientation.x))
+                #self.le_editori_y_third.setText(str(self.current_pose.pose.orientation.y))
+                #self.le_editori_z_third.setText(str(self.current_pose.pose.orientation.z))
+                #self.le_editori_w_third.setText(str(self.current_pose.pose.orientation.w))
+
+                self.third_pose.header.frame_id = self.current_pose.header.frame_id
+                self.third_pose.pose.position.x = self.current_pose.pose.position.x
+                self.third_pose.pose.position.y = self.current_pose.pose.position.y
+                self.third_pose.pose.position.z = self.current_pose.pose.position.z
+                self.third_pose.pose.orientation.x = self.current_pose.pose.orientation.x
+                self.third_pose.pose.orientation.y = self.current_pose.pose.orientation.y
+                self.third_pose.pose.orientation.z = self.current_pose.pose.orientation.z
+                self.third_pose.pose.orientation.w = self.current_pose.pose.orientation.w
 
     def clearRQTValues(self, current_iterate):
         if(current_iterate == 1):
@@ -1011,30 +1032,30 @@ class PalettePoseTeacher(TeacherPlugin):
             self.le_edity_first.setText(str(""))
             self.le_editz_first.setText(str(""))
 
-            self.le_editori_x_first.setText(str(""))
-            self.le_editori_y_first.setText(str(""))
-            self.le_editori_z_first.setText(str(""))
-            self.le_editori_w_first.setText(str(""))
+            #self.le_editori_x_first.setText(str(""))
+            #self.le_editori_y_first.setText(str(""))
+            #self.le_editori_z_first.setText(str(""))
+            #self.le_editori_w_first.setText(str(""))
         elif(current_iterate == 2):
             self.le_edit_frame_id_second.setText(str(""))
             self.le_editx_second.setText(str(""))
             self.le_edity_second.setText(str(""))
             self.le_editz_second.setText(str(""))
 
-            self.le_editori_x_second.setText(str(""))
-            self.le_editori_y_second.setText(str(""))
-            self.le_editori_z_second.setText(str(""))
-            self.le_editori_w_second.setText(str(""))
+            #self.le_editori_x_second.setText(str(""))
+            #self.le_editori_y_second.setText(str(""))
+            #self.le_editori_z_second.setText(str(""))
+            #self.le_editori_w_second.setText(str(""))
         else:
             self.le_edit_frame_id_third.setText(str(""))
             self.le_editx_third.setText(str(""))
             self.le_edity_third.setText(str(""))
             self.le_editz_third.setText(str(""))
 
-            self.le_editori_x_third.setText(str(""))
-            self.le_editori_y_third.setText(str(""))
-            self.le_editori_z_third.setText(str(""))
-            self.le_editori_w_third.setText(str(""))
+            #self.le_editori_x_third.setText(str(""))
+            #self.le_editori_y_third.setText(str(""))
+            #self.le_editori_z_third.setText(str(""))
+            #self.le_editori_w_third.setText(str(""))
 
     def getPaletteFrameFromThreePoses(self, poseStamped_first, poseStamped_mid, poseStamped_last):
 
@@ -1047,7 +1068,7 @@ class PalettePoseTeacher(TeacherPlugin):
         if (not (poseStamped_first.header.frame_id == poseStamped_mid.header.frame_id and
                 poseStamped_mid.header.frame_id == poseStamped_last.header.frame_id and
                 poseStamped_last.header.frame_id == poseStamped_first.header.frame_id)):
-            return "The world is ending! We all gonna die!"
+            return "Invalid input data"
         posePallet = copy.deepcopy(poseStamped_first)
 
         pose_first = np.array([poseStamped_first.pose.position.x, poseStamped_first.pose.position.y, poseStamped_first.pose.position.z])
