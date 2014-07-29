@@ -13,8 +13,8 @@ from teachers import *
 from YamlManager import *
 
 
-availableTeachers = [#StringInputTeacher, StdStringInputTeacher, FloatInputTeacher, PoseInputTeacher, 
-                     #PoseTouchupTeacher, PoseTeachInHandleTeacher, 
+availableTeachers = [StringInputTeacher, StdStringInputTeacher, FloatInputTeacher, PoseInputTeacher, 
+                     PoseTouchupTeacher, PoseTeachInHandleTeacher, 
                      PalettePoseTeacher]
 
 class cob_teacher_plugin(Plugin):
