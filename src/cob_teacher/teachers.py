@@ -561,29 +561,27 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
 
 
 class PalettePoseTeacher(TeacherPlugin):
-    current_pose = PoseStamped()
+    current_handle_pose = PoseStamped()
     first_pose = PoseStamped()
     second_pose = PoseStamped()
     third_pose = PoseStamped()
     current_iterate = 0
-    ps_move_hold_value = 0
     
     def __init__(self):
         # start listener for pose 
-        #self.handle_listener = rospy.Subscriber("/MagBot/teach_in_handle_pose", PoseStamped, self.callback_handle_pose)
+        self.handle_listener = rospy.Subscriber("/MagBot/teach_in_handle_pose", PoseStamped, self.callback_handle_pose)
         self.ps_move_listener = rospy.Subscriber("/button_value_ps_move_controller", move_ps_controller, self.callback_ps_move_button, callback_args=None, queue_size=1, buff_size=65536, tcp_nodelay=False)
-	self.lr = tf.TransformListener()
-	rospy.sleep(0.1)        
-	pass
+    	self.lr = tf.TransformListener()
+        rospy.sleep(0.1)
+        pass
 
-    #def callback_handle_pose(self, data):
-    #    self.current_pose = data
+    def callback_handle_pose(self, data):
+        self.current_handle_pose = data
 
     def callback_ps_move_button(self, data):
         if(data.button_value == 16):
-            self.ps_move_hold_value = 16    
-        if((self.ps_move_hold_value == 16) and (data.button_value != 16)):
-            self.ps_move_hold_value = 0
+            while(data.button_value == 16):
+                pass
             self.updateRQTValues(0, True)
 
     def getName(self):
@@ -597,11 +595,8 @@ class PalettePoseTeacher(TeacherPlugin):
 
     def getRQTData(self, name):
         result = PoseStamped()
-
         ################ Compute Pallete Pose ##################################
         result = self.getPaletteFrameFromThreePoses(self.first_pose, self.second_pose, self.third_pose)
-        print "Palette Frame: "
-        print result
         ########################
         return result
 
@@ -886,148 +881,105 @@ class PalettePoseTeacher(TeacherPlugin):
         return self.le
 
     def updateRQTValues(self, current_pose_iter, send_by_ps_move):
-        # get curren handle pose in "base_link": ############################################
-	print "call!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"	
-	now = rospy.Time.now()        
-	try:
-            self.lr.waitForTransform("base_link", "teach_in_handle", now, rospy.Duration(3.0))
-            (trans,rot) = self.lr.lookupTransform("base_link", "teach_in_handle", now)
-        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-            pass
+        # get current handle pose in "base_link": ############################################	
+    	current_pose = PoseStamped()
+        current_pose = self.lr.transformPose("base_link", self.current_handle_pose)
         
-        self.current_pose.header.frame_id = "base_link"
-        self.current_pose.pose.position.x = trans[0]
-        self.current_pose.pose.position.y = trans[1]
-        self.current_pose.pose.position.z = trans[2]
-        self.current_pose.pose.orientation.x = rot[0]
-        self.current_pose.pose.orientation.y = rot[1]
-        self.current_pose.pose.orientation.z = rot[2]
-        self.current_pose.pose.orientation.w = rot[3]
-        #######################################################################################
-
         if(send_by_ps_move):
             if(self.current_iterate <= 1):
-               	self.le_edit_frame_id_first.setText(str( self.current_pose.header.frame_id))
-                self.le_editx_first.setText(str( self.current_pose.pose.position.x))
-                self.le_edity_first.setText(str( self.current_pose.pose.position.y))
-                self.le_editz_first.setText(str( self.current_pose.pose.position.z))
-
-
-                #self.le_editori_x_first.setText(str(self.current_pose.pose.orientation.x))
-                #self.le_editori_y_first.setText(str(self.current_pose.pose.orientation.y))
-                #self.le_editori_z_first.setText(str(self.current_pose.pose.orientation.z))
-                #self.le_editori_w_first.setText(str(self.current_pose.pose.orientation.w))
+               	self.le_edit_frame_id_first.setText(str( current_pose.header.frame_id))
+                self.le_editx_first.setText(str( current_pose.pose.position.x))
+                self.le_edity_first.setText(str( current_pose.pose.position.y))
+                self.le_editz_first.setText(str( current_pose.pose.position.z))
+                ########################################################################
                 self.current_iterate = 2
             
-                self.first_pose.header.frame_id = self.current_pose.header.frame_id
-                self.first_pose.pose.position.x = self.current_pose.pose.position.x
-                self.first_pose.pose.position.y = self.current_pose.pose.position.y
-                self.first_pose.pose.position.z = self.current_pose.pose.position.z
-                self.first_pose.pose.orientation.x = self.current_pose.pose.orientation.x
-                self.first_pose.pose.orientation.y = self.current_pose.pose.orientation.y
-                self.first_pose.pose.orientation.z = self.current_pose.pose.orientation.z
-                self.first_pose.pose.orientation.w = self.current_pose.pose.orientation.w
+                self.first_pose.header.frame_id = current_pose.header.frame_id
+                self.first_pose.pose.position.x = current_pose.pose.position.x
+                self.first_pose.pose.position.y = current_pose.pose.position.y
+                self.first_pose.pose.position.z = current_pose.pose.position.z
+                self.first_pose.pose.orientation.x = current_pose.pose.orientation.x
+                self.first_pose.pose.orientation.y = current_pose.pose.orientation.y
+                self.first_pose.pose.orientation.z = current_pose.pose.orientation.z
+                self.first_pose.pose.orientation.w = current_pose.pose.orientation.w
 
             elif(self.current_iterate == 2):
-                self.le_edit_frame_id_second.setText(str( self.current_pose.header.frame_id))
-                self.le_editx_second.setText(str( self.current_pose.pose.position.x))
-                self.le_edity_second.setText(str( self.current_pose.pose.position.y))
-                self.le_editz_second.setText(str( self.current_pose.pose.position.z))
-
-                #self.le_editori_x_second.setText(str(self.current_pose.pose.orientation.x))
-                #self.le_editori_y_second.setText(str(self.current_pose.pose.orientation.y))
-                #self.le_editori_z_second.setText(str(self.current_pose.pose.orientation.z))
-                #self.le_editori_w_second.setText(str(self.current_pose.pose.orientation.w))
+                self.le_edit_frame_id_second.setText(str( current_pose.header.frame_id))
+                self.le_editx_second.setText(str( current_pose.pose.position.x))
+                self.le_edity_second.setText(str( current_pose.pose.position.y))
+                self.le_editz_second.setText(str( current_pose.pose.position.z))
+                ########################################################################
                 self.current_iterate = 3
 
-                self.second_pose.header.frame_id = self.current_pose.header.frame_id
-                self.second_pose.pose.position.x = self.current_pose.pose.position.x
-                self.second_pose.pose.position.y = self.current_pose.pose.position.y
-                self.second_pose.pose.position.z = self.current_pose.pose.position.z
-                self.second_pose.pose.orientation.x = self.current_pose.pose.orientation.x
-                self.second_pose.pose.orientation.y = self.current_pose.pose.orientation.y
-                self.second_pose.pose.orientation.z = self.current_pose.pose.orientation.z
-                self.second_pose.pose.orientation.w = self.current_pose.pose.orientation.w
+                self.second_pose.header.frame_id = current_pose.header.frame_id
+                self.second_pose.pose.position.x = current_pose.pose.position.x
+                self.second_pose.pose.position.y = current_pose.pose.position.y
+                self.second_pose.pose.position.z = current_pose.pose.position.z
+                self.second_pose.pose.orientation.x = current_pose.pose.orientation.x
+                self.second_pose.pose.orientation.y = current_pose.pose.orientation.y
+                self.second_pose.pose.orientation.z = current_pose.pose.orientation.z
+                self.second_pose.pose.orientation.w = current_pose.pose.orientation.w
             else:
-                self.le_edit_frame_id_third.setText(str( self.current_pose.header.frame_id))
-                self.le_editx_third.setText(str( self.current_pose.pose.position.x))
-                self.le_edity_third.setText(str( self.current_pose.pose.position.y))
-                self.le_editz_third.setText(str( self.current_pose.pose.position.z))
+                self.le_edit_frame_id_third.setText(str( current_pose.header.frame_id))
+                self.le_editx_third.setText(str( current_pose.pose.position.x))
+                self.le_edity_third.setText(str( current_pose.pose.position.y))
+                self.le_editz_third.setText(str( current_pose.pose.position.z))
 
-                #self.le_editori_x_third.setText(str(self.current_pose.pose.orientation.x))
-                #self.le_editori_y_third.setText(str(self.current_pose.pose.orientation.y))
-                #self.le_editori_z_third.setText(str(self.current_pose.pose.orientation.z))
-                #self.le_editori_w_third.setText(str(self.current_pose.pose.orientation.w))
                 self.current_iterate = 1
-
-                self.third_pose.header.frame_id = self.current_pose.header.frame_id
-                self.third_pose.pose.position.x = self.current_pose.pose.position.x
-                self.third_pose.pose.position.y = self.current_pose.pose.position.y
-                self.third_pose.pose.position.z = self.current_pose.pose.position.z
-                self.third_pose.pose.orientation.x = self.current_pose.pose.orientation.x
-                self.third_pose.pose.orientation.y = self.current_pose.pose.orientation.y
-                self.third_pose.pose.orientation.z = self.current_pose.pose.orientation.z
-                self.third_pose.pose.orientation.w = self.current_pose.pose.orientation.w
+                ########################################################################
+                self.third_pose.header.frame_id = current_pose.header.frame_id
+                self.third_pose.pose.position.x = current_pose.pose.position.x
+                self.third_pose.pose.position.y = current_pose.pose.position.y
+                self.third_pose.pose.position.z = current_pose.pose.position.z
+                self.third_pose.pose.orientation.x = current_pose.pose.orientation.x
+                self.third_pose.pose.orientation.y = current_pose.pose.orientation.y
+                self.third_pose.pose.orientation.z = current_pose.pose.orientation.z
+                self.third_pose.pose.orientation.w = current_pose.pose.orientation.w
         else:
             if(current_pose_iter == 1):
-                self.le_edit_frame_id_first.setText(str( self.current_pose.header.frame_id))
-                self.le_editx_first.setText(str( self.current_pose.pose.position.x))
-                self.le_edity_first.setText(str( self.current_pose.pose.position.y))
-                self.le_editz_first.setText(str( self.current_pose.pose.position.z))
-
-                #self.le_editori_x_first.setText(str(self.current_pose.pose.orientation.x))
-                #self.le_editori_y_first.setText(str(self.current_pose.pose.orientation.y))
-                #self.le_editori_z_first.setText(str(self.current_pose.pose.orientation.z))
-                #self.le_editori_w_first.setText(str(self.current_pose.pose.orientation.w))
-
-                self.first_pose.header.frame_id = self.current_pose.header.frame_id
-                self.first_pose.pose.position.x = self.current_pose.pose.position.x
-                self.first_pose.pose.position.y = self.current_pose.pose.position.y
-                self.first_pose.pose.position.z = self.current_pose.pose.position.z
-                self.first_pose.pose.orientation.x = self.current_pose.pose.orientation.x
-                self.first_pose.pose.orientation.y = self.current_pose.pose.orientation.y
-                self.first_pose.pose.orientation.z = self.current_pose.pose.orientation.z
-                self.first_pose.pose.orientation.w = self.current_pose.pose.orientation.w
+                self.le_edit_frame_id_first.setText(str( current_pose.header.frame_id))
+                self.le_editx_first.setText(str( current_pose.pose.position.x))
+                self.le_edity_first.setText(str( current_pose.pose.position.y))
+                self.le_editz_first.setText(str( current_pose.pose.position.z))
+                ########################################################################
+                self.first_pose.header.frame_id = current_pose.header.frame_id
+                self.first_pose.pose.position.x = current_pose.pose.position.x
+                self.first_pose.pose.position.y = current_pose.pose.position.y
+                self.first_pose.pose.position.z = current_pose.pose.position.z
+                self.first_pose.pose.orientation.x = current_pose.pose.orientation.x
+                self.first_pose.pose.orientation.y = current_pose.pose.orientation.y
+                self.first_pose.pose.orientation.z = current_pose.pose.orientation.z
+                self.first_pose.pose.orientation.w = current_pose.pose.orientation.w
 
             elif(current_pose_iter == 2):
-                self.le_edit_frame_id_second.setText(str( self.current_pose.header.frame_id))
-                self.le_editx_second.setText(str( self.current_pose.pose.position.x))
-                self.le_edity_second.setText(str( self.current_pose.pose.position.y))
-                self.le_editz_second.setText(str( self.current_pose.pose.position.z))
-
-                #self.le_editori_x_second.setText(str(self.current_pose.pose.orientation.x))
-                #self.le_editori_y_second.setText(str(self.current_pose.pose.orientation.y))
-                #self.le_editori_z_second.setText(str(self.current_pose.pose.orientation.z))
-                #self.le_editori_w_second.setText(str(self.current_pose.pose.orientation.w))
-
-                self.second_pose.header.frame_id = self.current_pose.header.frame_id
-                self.second_pose.pose.position.x = self.current_pose.pose.position.x
-                self.second_pose.pose.position.y = self.current_pose.pose.position.y
-                self.second_pose.pose.position.z = self.current_pose.pose.position.z
-                self.second_pose.pose.orientation.x = self.current_pose.pose.orientation.x
-                self.second_pose.pose.orientation.y = self.current_pose.pose.orientation.y
-                self.second_pose.pose.orientation.z = self.current_pose.pose.orientation.z
-                self.second_pose.pose.orientation.w = self.current_pose.pose.orientation.w
+                self.le_edit_frame_id_second.setText(str( current_pose.header.frame_id))
+                self.le_editx_second.setText(str( current_pose.pose.position.x))
+                self.le_edity_second.setText(str( current_pose.pose.position.y))
+                self.le_editz_second.setText(str( current_pose.pose.position.z))
+                ########################################################################
+                self.second_pose.header.frame_id = current_pose.header.frame_id
+                self.second_pose.pose.position.x = current_pose.pose.position.x
+                self.second_pose.pose.position.y = current_pose.pose.position.y
+                self.second_pose.pose.position.z = current_pose.pose.position.z
+                self.second_pose.pose.orientation.x = current_pose.pose.orientation.x
+                self.second_pose.pose.orientation.y = current_pose.pose.orientation.y
+                self.second_pose.pose.orientation.z = current_pose.pose.orientation.z
+                self.second_pose.pose.orientation.w = current_pose.pose.orientation.w
 
             elif(current_pose_iter == 3):
-                self.le_edit_frame_id_third.setText(str( self.current_pose.header.frame_id))
-                self.le_editx_third.setText(str( self.current_pose.pose.position.x))
-                self.le_edity_third.setText(str( self.current_pose.pose.position.y))
-                self.le_editz_third.setText(str( self.current_pose.pose.position.z))
-
-                #self.le_editori_x_third.setText(str(self.current_pose.pose.orientation.x))
-                #self.le_editori_y_third.setText(str(self.current_pose.pose.orientation.y))
-                #self.le_editori_z_third.setText(str(self.current_pose.pose.orientation.z))
-                #self.le_editori_w_third.setText(str(self.current_pose.pose.orientation.w))
-
-                self.third_pose.header.frame_id = self.current_pose.header.frame_id
-                self.third_pose.pose.position.x = self.current_pose.pose.position.x
-                self.third_pose.pose.position.y = self.current_pose.pose.position.y
-                self.third_pose.pose.position.z = self.current_pose.pose.position.z
-                self.third_pose.pose.orientation.x = self.current_pose.pose.orientation.x
-                self.third_pose.pose.orientation.y = self.current_pose.pose.orientation.y
-                self.third_pose.pose.orientation.z = self.current_pose.pose.orientation.z
-                self.third_pose.pose.orientation.w = self.current_pose.pose.orientation.w
+                self.le_edit_frame_id_third.setText(str( current_pose.header.frame_id))
+                self.le_editx_third.setText(str( current_pose.pose.position.x))
+                self.le_edity_third.setText(str( current_pose.pose.position.y))
+                self.le_editz_third.setText(str( current_pose.pose.position.z))
+                ########################################################################
+                self.third_pose.header.frame_id = current_pose.header.frame_id
+                self.third_pose.pose.position.x = current_pose.pose.position.x
+                self.third_pose.pose.position.y = current_pose.pose.position.y
+                self.third_pose.pose.position.z = current_pose.pose.position.z
+                self.third_pose.pose.orientation.x = current_pose.pose.orientation.x
+                self.third_pose.pose.orientation.y = current_pose.pose.orientation.y
+                self.third_pose.pose.orientation.z = current_pose.pose.orientation.z
+                self.third_pose.pose.orientation.w = current_pose.pose.orientation.w
 
     def clearRQTValues(self, current_iterate):
         if(current_iterate == 1):
@@ -1036,30 +988,18 @@ class PalettePoseTeacher(TeacherPlugin):
             self.le_edity_first.setText(str(""))
             self.le_editz_first.setText(str(""))
 
-            #self.le_editori_x_first.setText(str(""))
-            #self.le_editori_y_first.setText(str(""))
-            #self.le_editori_z_first.setText(str(""))
-            #self.le_editori_w_first.setText(str(""))
         elif(current_iterate == 2):
             self.le_edit_frame_id_second.setText(str(""))
             self.le_editx_second.setText(str(""))
             self.le_edity_second.setText(str(""))
             self.le_editz_second.setText(str(""))
 
-            #self.le_editori_x_second.setText(str(""))
-            #self.le_editori_y_second.setText(str(""))
-            #self.le_editori_z_second.setText(str(""))
-            #self.le_editori_w_second.setText(str(""))
         else:
             self.le_edit_frame_id_third.setText(str(""))
             self.le_editx_third.setText(str(""))
             self.le_edity_third.setText(str(""))
             self.le_editz_third.setText(str(""))
 
-            #self.le_editori_x_third.setText(str(""))
-            #self.le_editori_y_third.setText(str(""))
-            #self.le_editori_z_third.setText(str(""))
-            #self.le_editori_w_third.setText(str(""))
 
     def getPaletteFrameFromThreePoses(self, poseStamped_first, poseStamped_mid, poseStamped_last):
 
