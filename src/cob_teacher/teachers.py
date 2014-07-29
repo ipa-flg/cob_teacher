@@ -571,8 +571,10 @@ class PalettePoseTeacher(TeacherPlugin):
     def __init__(self):
         # start listener for pose 
         #self.handle_listener = rospy.Subscriber("/MagBot/teach_in_handle_pose", PoseStamped, self.callback_handle_pose)
-        self.ps_move_listener = rospy.Subscriber("/button_value_ps_move_controller", move_ps_controller, self.callback_ps_move_button)
-        pass
+        self.ps_move_listener = rospy.Subscriber("/button_value_ps_move_controller", move_ps_controller, self.callback_ps_move_button, callback_args=None, queue_size=1, buff_size=65536, tcp_nodelay=False)
+	self.lr = tf.TransformListener()
+	rospy.sleep(0.1)        
+	pass
 
     #def callback_handle_pose(self, data):
     #    self.current_pose = data
@@ -885,10 +887,11 @@ class PalettePoseTeacher(TeacherPlugin):
 
     def updateRQTValues(self, current_pose_iter, send_by_ps_move):
         # get curren handle pose in "base_link": ############################################
-        self.lr = tf.TransformListener()
-        try:
-            self.lr.waitForTransform("base_link", "teach_in_handle", rospy.Time(0), rospy.Duration(0.5))
-            (trans,rot) = self.lr.lookupTransform("base_link", "teach_in_handle", rospy.Time(0))
+	print "call!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"	
+	now = rospy.Time.now()        
+	try:
+            self.lr.waitForTransform("base_link", "teach_in_handle", now, rospy.Duration(3.0))
+            (trans,rot) = self.lr.lookupTransform("base_link", "teach_in_handle", now)
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             pass
         
@@ -904,10 +907,11 @@ class PalettePoseTeacher(TeacherPlugin):
 
         if(send_by_ps_move):
             if(self.current_iterate <= 1):
-                self.le_edit_frame_id_first.setText(str( self.current_pose.header.frame_id))
+               	self.le_edit_frame_id_first.setText(str( self.current_pose.header.frame_id))
                 self.le_editx_first.setText(str( self.current_pose.pose.position.x))
                 self.le_edity_first.setText(str( self.current_pose.pose.position.y))
                 self.le_editz_first.setText(str( self.current_pose.pose.position.z))
+
 
                 #self.le_editori_x_first.setText(str(self.current_pose.pose.orientation.x))
                 #self.le_editori_y_first.setText(str(self.current_pose.pose.orientation.y))
