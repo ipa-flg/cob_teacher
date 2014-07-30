@@ -409,7 +409,7 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
     current_pose = PoseStamped()
     def __init__(self):
         # start listener for pose 
-        self.listener = rospy.Subscriber('MagBot/teach_in_handle_pose', PoseStamped, self.callback)
+        self.listener = rospy.Subscriber("/MagBot/teach_in_handle_pose", PoseStamped, self.callback)
         pass
 
     def callback(self, data):
@@ -448,15 +448,15 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
         grid_layout = QtGui.QGridLayout()
         self.le.setLayout(grid_layout)
 
-        if(rospy.get_param('scene_already_calibrated') == False):
-            print "We need to calibrate this scene first"
-            # build calibration button
-            self.calibration_info = QtGui.QLabel("Calibrate scene first: ")
-            grid_layout.addWidget(self.calibration_info, 0,0)
+        #if(rospy.get_param('scene_already_calibrated') == False):
+        #    print "We need to calibrate this scene first"
+        #    # build calibration button
+        #    self.calibration_info = QtGui.QLabel("Calibrate scene first: ")
+        #    grid_layout.addWidget(self.calibration_info, 0,0)
 
-            self.le_calibration_button = QtGui.QPushButton("Calibrate Scene Now")
-            grid_layout.addWidget(self.le_calibration_button, 0,3)
-            self.le_calibration_button.connect(self.le_calibration_button, QtCore.SIGNAL('clicked()'), self.calibrateScene)
+        #    self.le_calibration_button = QtGui.QPushButton("Calibrate Scene Now")
+        #    grid_layout.addWidget(self.le_calibration_button, 0,3)
+        #    self.le_calibration_button.connect(self.le_calibration_button, QtCore.SIGNAL('clicked()'), self.calibrateScene)
     
         self.le_label_frame_id = QtGui.QLabel("frame_id:")
         self.le_edit_frame_id = QtGui.QLineEdit()
@@ -540,10 +540,6 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
         return self.le
 
     def updateRQTValues(self):
-        
-        #include tf lookup: camera_frame_id --> IPA_teach_in_handle_frame_id
-        # ...
-        # ...
 
         self.le_edit_frame_id.setText(str(self.current_pose.header.frame_id))
         self.le_editx.setText(str( self.current_pose.pose.position.x))
@@ -555,10 +551,10 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
         self.le_editori_z.setText(str(self.current_pose.pose.orientation.z))
         self.le_editori_w.setText(str(self.current_pose.pose.orientation.w))
 
-    def calibrateScene(self):
-        print "calibrating scene..."
-        cmd = 'rosrun cob_teacher calibrate_camera_frame_client.py'
-        os.system(cmd)
+   # def calibrateScene(self):
+   #     print "calibrating scene..."
+   #     cmd = 'rosrun cob_teacher calibrate_camera_frame_client.py'
+   #     os.system(cmd)
 
 
 class PalettePoseTeacher(TeacherPlugin):
@@ -575,7 +571,7 @@ class PalettePoseTeacher(TeacherPlugin):
         self.handle_listener = rospy.Subscriber("/MagBot/teach_in_handle_pose", PoseStamped, self.callback_handle_pose)
         self.ps_move_listener = rospy.Subscriber("/button_value_ps_move_controller", move_ps_controller, self.callback_ps_move_button)
     	self.lr = tf.TransformListener()
-		rospy.sleep(0.1)
+	rospy.sleep(0.1)
         pass
 
     def callback_handle_pose(self, data):
