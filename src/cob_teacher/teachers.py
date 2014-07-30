@@ -143,6 +143,34 @@ class FloatInputTeacher(TeacherPlugin):
     def getRQTData(self, name):
         return self.le_edit.text()
 
+class IntInputTeacher(TeacherPlugin):
+    def __init__(self):
+        pass
+
+    def getName(self):
+        return "IntInputTeacher"
+
+    def getType(self):
+        return "int"
+
+    def getData(self, name):
+        data_int = int(input("Please enter a value for " + name + " :"))
+        return data_int
+
+    def getRQTWidget(self, name, current_data):
+        self.le = QtGui.QWidget()
+        group_layout = QtGui.QVBoxLayout()
+        self.le.setLayout(group_layout)
+
+        self.le_edit = QtGui.QLineEdit()
+        self.le_edit.setObjectName(name)
+        self.le_edit.setText(str(current_data))
+        group_layout.addWidget(self.le_edit)
+        return self.le
+
+    def getRQTData(self, name):
+        return self.le_edit.text()
+
 class PoseInputTeacher(TeacherPlugin):
     def __init__(self):
         pass

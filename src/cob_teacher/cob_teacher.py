@@ -8,7 +8,7 @@ from geometry_msgs.msg import PoseStamped
 from teachers import *
 from YamlManager import *
 
-availableTeachers = [StringInputTeacher, FloatInputTeacher, PoseInputTeacher, 
+availableTeachers = [StringInputTeacher, FloatInputTeacher, IntInputTeacher, PoseInputTeacher, 
 					 PoseTouchupTeacher, PoseTeachInHandleTeacher]
 
 class SimpleTeacher:

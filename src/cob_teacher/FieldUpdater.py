@@ -80,3 +80,17 @@ class FloatUpdater(UpdaterPlugin):
     def update(self, fieldname, updated_field, input_data):
         updated_field[fieldname] = float(input_data)
         return updated_field
+
+class IntUpdater(UpdaterPlugin):
+    def __init__(self):
+        pass
+    
+    def getType(self):
+        return "int"
+    
+    def getName(self):
+        return "IntUpdater"
+
+    def update(self, fieldname, updated_field, input_data):
+        updated_field[fieldname] = int(input_data)
+        return updated_field
