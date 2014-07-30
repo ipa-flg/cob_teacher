@@ -566,11 +566,12 @@ class PalettePoseTeacher(TeacherPlugin):
     second_pose = PoseStamped()
     third_pose = PoseStamped()
     current_iterate = 0
+    ps_move_button_pressed = False
     
     def __init__(self):
         # start listener for pose 
         self.handle_listener = rospy.Subscriber("/MagBot/teach_in_handle_pose", PoseStamped, self.callback_handle_pose)
-        self.ps_move_listener = rospy.Subscriber("/button_value_ps_move_controller", move_ps_controller, self.callback_ps_move_button, callback_args=None, queue_size=1, buff_size=65536, tcp_nodelay=False)
+        self.ps_move_listener = rospy.Subscriber("/button_value_ps_move_controller", move_ps_controller, self.callback_ps_move_button)
     	self.lr = tf.TransformListener()
         rospy.sleep(0.1)
         pass
@@ -580,9 +581,12 @@ class PalettePoseTeacher(TeacherPlugin):
 
     def callback_ps_move_button(self, data):
         if(data.button_value == 16):
-            while(data.button_value == 16):
-                pass
-            self.updateRQTValues(0, True)
+		print "yes00000000000000000000000"
+		self.ps_move_button_pressed = True
+	if(self.ps_move_button_pressed == True and data.button_value != 16):
+		print "yeeeeeeeeeeeees!!!!!!!!!!!!"				
+		self.updateRQTValues(0, True)
+		self.ps_move_button_pressed = False
 
     def getName(self):
         return "PalettePoseTeacher"
@@ -884,7 +888,9 @@ class PalettePoseTeacher(TeacherPlugin):
         # get current handle pose in "base_link": ############################################	
     	current_pose = PoseStamped()
         current_pose = self.lr.transformPose("base_link", self.current_handle_pose)
-        
+	
+	self.le_edit_frame_id_first.setText(str(""))
+
         if(send_by_ps_move):
             if(self.current_iterate <= 1):
                	self.le_edit_frame_id_first.setText(str( current_pose.header.frame_id))
