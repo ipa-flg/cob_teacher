@@ -12,6 +12,7 @@ import PyKDL
 from tf.msg import tfMessage
 from std_msgs.msg import String 
 from geometry_msgs.msg import PoseStamped
+from multiprocessing import Process, Lock
 
 from prace_ps_move_controller.msg import move_ps_controller
 
@@ -567,27 +568,31 @@ class PalettePoseTeacher(TeacherPlugin):
     third_pose = PoseStamped()
     current_iterate = 0
     ps_move_button_pressed = False
-    
+    calls = 0
+
     def __init__(self):
         # start listener for pose 
         self.handle_listener = rospy.Subscriber("/MagBot/teach_in_handle_pose", PoseStamped, self.callback_handle_pose)
         self.ps_move_listener = rospy.Subscriber("/button_value_ps_move_controller", move_ps_controller, self.callback_ps_move_button)
     	self.lr = tf.TransformListener()
-        rospy.sleep(0.1)
+		rospy.sleep(0.1)
         pass
 
     def callback_handle_pose(self, data):
         self.current_handle_pose = data
 
     def callback_ps_move_button(self, data):
-        if(data.button_value == 16):
-		print "yes00000000000000000000000"
+	if(data.button_value == 16):
 		self.ps_move_button_pressed = True
-	if(self.ps_move_button_pressed == True and data.button_value != 16):
-		print "yeeeeeeeeeeeees!!!!!!!!!!!!"				
+	elif(self.ps_move_button_pressed == True):
+		self.ps_move_button_pressed = False		
 		self.updateRQTValues(0, True)
-		self.ps_move_button_pressed = False
+		#self.calls = self.calls + 1
+		#self.dummy()	
 
+    def dummy(self):
+	print "called" + str(self.calls)
+			
     def getName(self):
         return "PalettePoseTeacher"
 
@@ -888,8 +893,6 @@ class PalettePoseTeacher(TeacherPlugin):
         # get current handle pose in "base_link": ############################################	
     	current_pose = PoseStamped()
         current_pose = self.lr.transformPose("base_link", self.current_handle_pose)
-	
-	self.le_edit_frame_id_first.setText(str(""))
 
         if(send_by_ps_move):
             if(self.current_iterate <= 1):
