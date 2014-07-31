@@ -34,7 +34,7 @@ def correction():
 			try:		
 				listener.waitForTransform("base_link", "ids_camera_center", current_time, rospy.Duration(3.0))	
 				corrected_handle_pose = listener.transformPose("base_link", current_handle_pose)
-				print "running"
+				
 				# only use translational information, set roation default to (0,math.pi,0)
 				quat = tf.transformations.quaternion_from_euler(0, math.pi, 0)
 				corrected_handle_pose.pose.orientation.x = quat[0]
@@ -47,7 +47,8 @@ def correction():
 				offset_z = 0.02
 				corrected_handle_pose.pose.position.x = corrected_handle_pose.pose.position.x + offset_x
 				corrected_handle_pose.pose.position.y = corrected_handle_pose.pose.position.y + offset_y
-				corrected_handle_pose.pose.position.z = corrected_handle_pose.pose.position.z + offset_z
+				#corrected_handle_pose.pose.position.z = corrected_handle_pose.pose.position.z + offset_z
+				corrected_handle_pose.pose.position.z = 1.067				
 				#publish corrected pose
 				handle_pub.publish(corrected_handle_pose)
 
