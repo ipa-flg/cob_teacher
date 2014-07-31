@@ -409,7 +409,7 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
     current_pose = PoseStamped()
     def __init__(self):
         # start listener for pose 
-        self.listener = rospy.Subscriber("/MagBot/teach_in_handle_pose", PoseStamped, self.callback)
+        self.listener = rospy.Subscriber("/corrected_handle_pose", PoseStamped, self.callback)
         pass
 
     def callback(self, data):
@@ -568,7 +568,7 @@ class PalettePoseTeacher(TeacherPlugin):
 
     def __init__(self):
         # start listener for pose 
-        self.handle_listener = rospy.Subscriber("/MagBot/teach_in_handle_pose", PoseStamped, self.callback_handle_pose)
+        self.handle_listener = rospy.Subscriber("/corrected_handle_pose", PoseStamped, self.callback_handle_pose)
         self.ps_move_listener = rospy.Subscriber("/button_value_ps_move_controller", move_ps_controller, self.callback_ps_move_button)
     	self.lr = tf.TransformListener()
 	rospy.sleep(0.1)
