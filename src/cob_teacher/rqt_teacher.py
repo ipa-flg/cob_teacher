@@ -64,20 +64,10 @@ class cob_teacher_plugin(Plugin):
 
     def getFieldWidget(self, field):
         group = QtGui.QGroupBox()
-        # set title
-        teachers_found = self.findTeachers(field)
-        if(len(teachers_found) > 1):
-            group.setTitle("select teacher for: '"+ field + "'")
-        elif(len(teachers_found) == 0):
-            not_found_widget = QtGui.QLabel("No Plugin found for "+ self.ym.getType(field))
-            field_layout.addWidget(not_found_widget)
-        else:
-            group.setTitle(teachers_found[0]().getName())
-        
-        # set layout     
+        group.setTitle("select teacher for: '"+ field + "'")
         field_layout = QtGui.QVBoxLayout()
-        group.setLayout(field_layout)        
-        # choose teacher
+        group.setLayout(field_layout)
+        teachers_found = self.findTeachers(field)
         if(len(teachers_found) > 1):
             print "Several plugins were found for fieldtype " + self.ym.getType(field)
             combo = QtGui.QComboBox()
@@ -98,7 +88,7 @@ class cob_teacher_plugin(Plugin):
             field_layout.addWidget(teach_widget)
         
         return group
-            
+
     def saveValues(self):
         for teacher in self.current_teacher:
             if(teacher["teacher"] != None):

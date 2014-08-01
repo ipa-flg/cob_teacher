@@ -437,7 +437,7 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
     current_pose = PoseStamped()
     def __init__(self):
         # start listener for pose 
-        self.listener = rospy.Subscriber("/MagBot/teach_in_handle_pose", PoseStamped, self.callback)
+        self.listener = rospy.Subscriber("/corrected_handle_pose", PoseStamped, self.callback)
         pass
 
     def callback(self, data):
@@ -459,14 +459,34 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
         p = PoseStamped()
         p.header.frame_id = str(self.le_edit_frame_id.text())
 
-        p.pose.position.x = float(self.le_editx.text())
-        p.pose.position.y = float(self.le_edity.text())
-        p.pose.position.z = float(self.le_editz.text())
+        #p.pose.position.x = 0
+        #p.pose.position.y = 0
+        #p.pose.position.z = 0
 
         p.pose.orientation.x = float(self.le_editori_x.text())
         p.pose.orientation.y = float(self.le_editori_y.text())
         p.pose.orientation.z = float(self.le_editori_z.text())
         p.pose.orientation.w = float(self.le_editori_w.text())
+
+        #quat = tf.transformations.quaternion_from_euler(0, 0, 0)
+        #quat[0]=p.pose.orientation.x
+        ##quat[1]=p.pose.orientation.y
+        #quat[2]=p.pose.orientation.z
+        #quat[3]=p.pose.orientation.w
+
+        #euler = tf.transformations.euler_from_quaternion(quat)
+        #transformed = (euler[0], euler[1]+math.pi, euler[2])
+
+        #orientation = tf.transformations.quaternion_from_euler(euler[0], euler[1]+math.pi, euler[2])
+
+        p.pose.position.x = float(self.le_editx.text())
+        p.pose.position.y = float(self.le_edity.text())
+        p.pose.position.z = float(self.le_editz.text())
+
+        #p.pose.orientation.x = orientation[0]
+        #p.pose.orientation.y = orientation[1]
+        #p.pose.orientation.z = orientation[2]
+        #p.pose.orientation.w = orientation[3]
 
         return p;
         
@@ -596,7 +616,7 @@ class PalettePoseTeacher(TeacherPlugin):
 
     def __init__(self):
         # start listener for pose 
-        self.handle_listener = rospy.Subscriber("/MagBot/teach_in_handle_pose", PoseStamped, self.callback_handle_pose)
+        self.handle_listener = rospy.Subscriber("/corrected_handle_pose", PoseStamped, self.callback_handle_pose)
         self.ps_move_listener = rospy.Subscriber("/button_value_ps_move_controller", move_ps_controller, self.callback_ps_move_button)
     	self.lr = tf.TransformListener()
 	rospy.sleep(0.1)
