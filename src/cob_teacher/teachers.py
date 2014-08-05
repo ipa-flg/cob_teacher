@@ -436,10 +436,14 @@ class PoseTouchupTeacher(TeacherPlugin):
 class PoseTeachInHandleTeacher(TeacherPlugin):
     current_pose_gripper = PoseStamped()
     current_pose_raspberry = PoseStamped()
+    ps_move_triangle_pressed = False 
+    ps_move_circle_pressed = False 
+
     def __init__(self):
         # start listener for pose 
         self.listener_gripper_pose = rospy.Subscriber("/corrected_handle_pose_gripper", PoseStamped, self.callback_gripper)
         self.listener_rasperry_pose = rospy.Subscriber("/corrected_handle_pose_raspberry", PoseStamped, self.callback_raspberry)
+        self.ps_move_listener = rospy.Subscriber("/button_value_ps_move_controller", move_ps_controller, self.callback_ps_move_button)
         pass
 
     def callback_gripper(self, data):
@@ -447,6 +451,19 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
 
     def callback_raspberry(self, data):
         self.current_pose_raspberry = data
+
+    def callback_ps_move_button(self, data):
+        if(data.button_value == 16):
+            self.ps_move_triangle_pressed = True
+        elif(self.ps_move_triangle_pressed == True):
+            self.ps_move_triangle_pressed = False     
+            self.updateRQTValues_gripper()
+        
+        if(data.button_value == 32):
+            self.ps_move_circle_pressed = True
+        elif(self.ps_move_circle_pressed == True):
+            self.ps_move_circle_pressed = False     
+            self.updateRQTValues_raspberry()
 
     def getName(self):
         return "PoseTeachInHandleTeacher"
