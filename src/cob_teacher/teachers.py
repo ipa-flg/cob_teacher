@@ -456,12 +456,14 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
         if(data.button_value == 16):
             self.ps_move_triangle_pressed = True
         elif(self.ps_move_triangle_pressed == True):
+            # get current handle gripper pose
             self.ps_move_triangle_pressed = False     
             self.updateRQTValues_gripper()
         
         if(data.button_value == 32):
             self.ps_move_circle_pressed = True
         elif(self.ps_move_circle_pressed == True):
+            # get current handle raspberry pose
             self.ps_move_circle_pressed = False     
             self.updateRQTValues_raspberry()
 
