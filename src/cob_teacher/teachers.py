@@ -434,14 +434,19 @@ class PoseTouchupTeacher(TeacherPlugin):
             pass
 
 class PoseTeachInHandleTeacher(TeacherPlugin):
-    current_pose = PoseStamped()
+    current_pose_gripper = PoseStamped()
+    current_pose_raspberry = PoseStamped()
     def __init__(self):
         # start listener for pose 
-        self.listener = rospy.Subscriber("/corrected_handle_pose", PoseStamped, self.callback)
+        self.listener_gripper_pose = rospy.Subscriber("/corrected_handle_pose_gripper", PoseStamped, self.callback_gripper)
+        self.listener_rasperry_pose = rospy.Subscriber("/corrected_handle_pose_raspberry", PoseStamped, self.callback_raspberry)
         pass
 
-    def callback(self, data):
-        self.current_pose = data
+    def callback_gripper(self, data):
+        self.current_pose_gripper = data
+
+    def callback_raspberry(self, data):
+        self.current_pose_raspberry = data
 
     def getName(self):
         return "PoseTeachInHandleTeacher"
@@ -459,34 +464,14 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
         p = PoseStamped()
         p.header.frame_id = str(self.le_edit_frame_id.text())
 
-        #p.pose.position.x = 0
-        #p.pose.position.y = 0
-        #p.pose.position.z = 0
-
         p.pose.orientation.x = float(self.le_editori_x.text())
         p.pose.orientation.y = float(self.le_editori_y.text())
         p.pose.orientation.z = float(self.le_editori_z.text())
         p.pose.orientation.w = float(self.le_editori_w.text())
 
-        #quat = tf.transformations.quaternion_from_euler(0, 0, 0)
-        #quat[0]=p.pose.orientation.x
-        ##quat[1]=p.pose.orientation.y
-        #quat[2]=p.pose.orientation.z
-        #quat[3]=p.pose.orientation.w
-
-        #euler = tf.transformations.euler_from_quaternion(quat)
-        #transformed = (euler[0], euler[1]+math.pi, euler[2])
-
-        #orientation = tf.transformations.quaternion_from_euler(euler[0], euler[1]+math.pi, euler[2])
-
         p.pose.position.x = float(self.le_editx.text())
         p.pose.position.y = float(self.le_edity.text())
         p.pose.position.z = float(self.le_editz.text())
-
-        #p.pose.orientation.x = orientation[0]
-        #p.pose.orientation.y = orientation[1]
-        #p.pose.orientation.z = orientation[2]
-        #p.pose.orientation.w = orientation[3]
 
         return p;
         
@@ -581,34 +566,45 @@ class PoseTeachInHandleTeacher(TeacherPlugin):
         grid_layout.addWidget(self.le_labelori_w, 5,2)
         grid_layout.addWidget(self.le_editori_w, 5,3)
 
-        self.le_teach_button = QtGui.QPushButton("Teach Now")
+        self.le_teach_button = QtGui.QPushButton("Teach Gripper Pose")
         grid_layout.addWidget(self.le_teach_button, 6,3)
-        self.le_teach_button.connect(self.le_teach_button, QtCore.SIGNAL('clicked()'), self.updateRQTValues)
+        self.le_teach_button.connect(self.le_teach_button, QtCore.SIGNAL('clicked()'), self.updateRQTValues_gripper)
+
+        self.le_teach_button = QtGui.QPushButton("Teach Raspberry Pose")
+        grid_layout.addWidget(self.le_teach_button, 7,3)
+        self.le_teach_button.connect(self.le_teach_button, QtCore.SIGNAL('clicked()'), self.updateRQTValues_raspberry)
 
         return self.le
 
-    def updateRQTValues(self):
+    def updateRQTValues_gripper(self):
 
-        self.le_edit_frame_id.setText(str(self.current_pose.header.frame_id))
-        self.le_editx.setText(str( self.current_pose.pose.position.x))
-        self.le_edity.setText(str( self.current_pose.pose.position.y))
-        self.le_editz.setText(str( self.current_pose.pose.position.z))
+        self.le_edit_frame_id.setText(str(self.current_pose_gripper.header.frame_id))
+        self.le_editx.setText(str( self.current_pose_gripper.pose.position.x))
+        self.le_edity.setText(str( self.current_pose_gripper.pose.position.y))
+        self.le_editz.setText(str( self.current_pose_gripper.pose.position.z))
 
-        self.le_editori_x.setText(str(self.current_pose.pose.orientation.x))
-        self.le_editori_y.setText(str(self.current_pose.pose.orientation.y))
-        self.le_editori_z.setText(str(self.current_pose.pose.orientation.z))
-        self.le_editori_w.setText(str(self.current_pose.pose.orientation.w))
+        self.le_editori_x.setText(str(self.current_pose_gripper.pose.orientation.x))
+        self.le_editori_y.setText(str(self.current_pose_gripper.pose.orientation.y))
+        self.le_editori_z.setText(str(self.current_pose_gripper.pose.orientation.z))
+        self.le_editori_w.setText(str(self.current_pose_gripper.pose.orientation.w))
 
-   # def calibrateScene(self):
-   #     print "calibrating scene..."
-   #     cmd = 'rosrun cob_teacher calibrate_camera_frame_client.py'
-   #     os.system(cmd)
+    def updateRQTValues_raspberry(self):
+
+        self.le_edit_frame_id.setText(str(self.current_pose_raspberry.header.frame_id))
+        self.le_editx.setText(str( self.current_pose_raspberry.pose.position.x))
+        self.le_edity.setText(str( self.current_pose_raspberry.pose.position.y))
+        self.le_editz.setText(str( self.current_pose_raspberry.pose.position.z))
+
+        self.le_editori_x.setText(str(self.current_pose_raspberry.pose.orientation.x))
+        self.le_editori_y.setText(str(self.current_pose_raspberry.pose.orientation.y))
+        self.le_editori_z.setText(str(self.current_pose_raspberry.pose.orientation.z))
+        self.le_editori_w.setText(str(self.current_pose_raspberry.pose.orientation.w))
 
 
 class PalettePoseTeacher(TeacherPlugin):
     current_handle_pose = PoseStamped()
     first_pose = PoseStamped()
-    second_pose = PoseStamped()
+    second_pose = PoseStamped() 
     third_pose = PoseStamped()
     current_iterate = 0
     ps_move_button_pressed = False
@@ -616,7 +612,7 @@ class PalettePoseTeacher(TeacherPlugin):
 
     def __init__(self):
         # start listener for pose 
-        self.handle_listener = rospy.Subscriber("/corrected_handle_pose", PoseStamped, self.callback_handle_pose)
+        self.handle_listener = rospy.Subscriber("/corrected_handle_pose_gripper", PoseStamped, self.callback_handle_pose)
         self.ps_move_listener = rospy.Subscriber("/button_value_ps_move_controller", move_ps_controller, self.callback_ps_move_button)
     	self.lr = tf.TransformListener()
 	rospy.sleep(0.1)
